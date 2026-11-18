@@ -1,0 +1,4143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="filename" content="index.html" />
+  <title>Realax AI — AI-Native Real Estate Operating Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Outfit', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            navy: {
+              950: '#040d1e',
+              900: '#071630',
+              800: '#0a2148',
+              700: '#0d2d63',
+              600: '#1040a0',
+              500: '#1a56d6',
+              400: '#3b82f6',
+              300: '#93c5fd',
+            },
+            accent: {
+              500: '#2563eb',
+              400: '#3b82f6',
+              300: '#60a5fa',
+            },
+          },
+          animation: {
+            'float': 'float 6s ease-in-out infinite',
+            'pulse-slow': 'pulse 3s ease-in-out infinite',
+            'shimmer': 'shimmer 2.5s linear infinite',
+            'marquee': 'marquee 32s linear infinite',
+            'blink': 'blink 1s step-end infinite',
+            'fadeUp': 'fadeUp 0.7s ease forwards',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-12px)' },
+            },
+            shimmer: {
+              '0%': { backgroundPosition: '-200% center' },
+              '100%': { backgroundPosition: '200% center' },
+            },
+            marquee: {
+              '0%': { transform: 'translateX(0%)' },
+              '100%': { transform: 'translateX(-50%)' },
+            },
+            blink: {
+              '0%, 100%': { opacity: '1' },
+              '50%': { opacity: '0' },
+            },
+            fadeUp: {
+              '0%': { opacity: '0', transform: 'translateY(24px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            centerBreathe: {
+              '0%,100%': { boxShadow: '0 0 0 8px rgba(26,86,214,0.08), 0 0 32px rgba(37,99,235,0.35), inset 0 1px 0 rgba(255,255,255,0.12)' },
+              '50%': { boxShadow: '0 0 0 14px rgba(26,86,214,0.12), 0 0 48px rgba(37,99,235,0.5),  inset 0 1px 0 rgba(255,255,255,0.12)' }
+            },
+            pulseRing: {
+              '0%': { transform: 'scale(1)', opacity: '0.6' },
+              '100%': { transform: 'scale(1.55)', opacity: '0' }
+            },
+            scanSweep: {
+              'from': { transform: 'rotate(0deg)' },
+              'to': { transform: 'rotate(360deg)' }
+            }
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 18px;
+    }
+
+    body {
+      background-color: #040d1e;
+      color: #e2e8f0;
+      font-family: 'Outfit', system-ui, sans-serif;
+      overflow-x: hidden;
+      padding-top: 72px;
+    }
+
+    @media (max-width:767px) {
+      body {
+        padding-top: 64px;
+      }
+
+      html {
+        font-size: 16px;
+      }
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #040d1e;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #1a56d6;
+      border-radius: 2px;
+    }
+
+    /* ── Canvas ── */
+    #particle-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.45;
+    }
+
+    /* ── Glass Panel ── */
+    .glass {
+      background: rgba(10, 33, 72, 0.45);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(59, 130, 246, 0.12);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    .glass-light {
+      background: rgba(7, 22, 48, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(59, 130, 246, 0.1);
+    }
+
+    /* ── Gradient text ── */
+    .text-gradient {
+      background: linear-gradient(135deg, #60a5fa 0%, #00d4ff 40%, #818cf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── Glow button (克制发光) ── */
+    .btn-primary {
+      background: linear-gradient(135deg, #1a56d6, #2563eb);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .btn-primary:hover::before {
+      opacity: 1;
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      color: #93c5fd;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-outline:hover {
+      background: rgba(37, 99, 235, 0.12);
+      border-color: rgba(59, 130, 246, 0.6);
+      color: #bfdbfe;
+      transform: translateY(-2px);
+    }
+
+    .btn-outline:active {
+      transform: scale(0.98);
+    }
+
+    /* ── Grid mesh bg ── */
+    .mesh-bg {
+      background-image:
+        linear-gradient(rgba(26, 86, 214, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(26, 86, 214, 0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    /* ── Section divider ── */
+    .section-divider {
+      border-top: 1px solid;
+      border-image: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.3), transparent) 1;
+    }
+
+    /* ── 核心板块淡背景层次 ── */
+    .section-soft-bg {
+      background: radial-gradient(ellipse at top, rgba(26, 86, 214, 0.04), transparent 70%);
+    }
+
+    /* ── AI worker card ── */
+    .ai-card {
+      background: linear-gradient(135deg, rgba(10, 33, 72, 0.8) 0%, rgba(7, 22, 48, 0.9) 100%);
+      border: 1px solid rgba(59, 130, 246, 0.14);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ai-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .ai-card:hover::before {
+      opacity: 1;
+    }
+
+    .ai-card:hover {
+      border-color: rgba(59, 130, 246, 0.3);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      transform: translateY(-2px);
+    }
+
+    /* ── Pain point card ── */
+    .pain-card {
+      border-left: 2px solid rgba(239, 68, 68, 0.4);
+      background: rgba(239, 68, 68, 0.04);
+    }
+
+    .solution-card {
+      border-left: 2px solid rgba(37, 99, 235, 0.5);
+      background: rgba(37, 99, 235, 0.05);
+    }
+
+    /* ── Pricing card ── */
+    .pricing-featured {
+      background: linear-gradient(135deg, rgba(26, 86, 214, 0.2) 0%, rgba(37, 99, 235, 0.1) 100%);
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      box-shadow: 0 0 40px rgba(26, 86, 214, 0.1);
+    }
+
+    /* ── Stats number 放大 ── */
+    .stat-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+      font-weight: 500;
+      line-height: 1.2;
+      white-space: normal;
+      word-break: break-word;
+      height: 150px;
+    }
+
+    /* ── FAQ ── */
+    .faq-item .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding 0.3s;
+    }
+
+    .faq-item.open .faq-answer {
+      max-height: 400px;
+    }
+
+    .faq-item .faq-icon {
+      transition: transform 0.3s;
+    }
+
+    .faq-item.open .faq-icon {
+      transform: rotate(45deg);
+    }
+
+    /* ── Nav ── */
+    #main-nav {
+      position: fixed !important;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+    }
+
+    .nav-blur {
+      background: rgba(4, 13, 30, 0.85);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid rgba(59, 130, 246, 0.08);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #main-nav.scrolled {
+      height: 56px !important;
+      background: rgba(4, 13, 30, 0.95);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    /* ── Progress bar ── */
+    .progress-bar {
+      height: 3px;
+      background: linear-gradient(90deg, #1a56d6, #60a5fa);
+      border-radius: 2px;
+      transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* ── City card ── */
+    .city-card {
+      background: rgba(10, 33, 72, 0.5);
+      border: 1px solid rgba(59, 130, 246, 0.12);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .city-card:hover {
+      border-color: rgba(59, 130, 246, 0.35);
+      background: rgba(26, 86, 214, 0.12);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    /* ── Table ── */
+    .compare-row {
+      border-bottom: 1px solid rgba(59, 130, 246, 0.07);
+    }
+
+    .compare-row:hover {
+      background: rgba(26, 86, 214, 0.05);
+    }
+
+    /* ── Scroll reveal ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Typewriter cursor ── */
+    .cursor-blink::after {
+      content: '|';
+      animation: blink 1s step-end infinite;
+      color: #3b82f6;
+      margin-left: 2px;
+    }
+
+    /* ── Video placeholder ── */
+    .video-frame {
+      background: linear-gradient(135deg, #071630 0%, #0a2148 100%);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .video-frame::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 30% 50%, rgba(26, 86, 214, 0.15) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 20%, rgba(37, 99, 235, 0.1) 0%, transparent 50%);
+    }
+
+    /* ── AI small button ── */
+    .ai-btn {
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(145deg, #5288ff, #3059e8);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 6px rgba(64, 112, 255, 0.27);
+      flex-shrink: 0;
+    }
+
+    .ai-text {
+      font-size: 14px;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    /* ── Dot status ── */
+    .dot-live {
+      width: 8px;
+      height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      animation: pulse-slow 2s ease-in-out infinite;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15);
+    }
+
+    /* ── Mobile menu ── */
+    #mobile-menu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #mobile-menu.open {
+      max-height: 400px;
+    }
+
+    /* ── Star field ── */
+    .stars {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .star {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      background: white;
+      border-radius: 50%;
+      animation: pulse-slow var(--dur, 3s) ease-in-out infinite;
+    }
+
+    /* ── Hero标题放大增强 ── */
+    .hero-title {
+      font-size: clamp(2.2rem, 5vw, 4rem) !important;
+      line-height: 1.12 !important;
+    }
+
+    /* ── Orbit scene 整体放大 PC端 ── */
+    #orbit-scene {
+      width: min(580px, 90vw);
+      height: min(580px, 90vw);
+      max-width: 100%;
+      position: relative;
+      user-select: none;
+    }
+
+    #center-node {
+      width: 108px;
+      height: 108px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, #0d2d63 0%, #1a56d6 60%, #2563eb 100%);
+      border: 1.5px solid rgba(96, 165, 250, 0.45);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      position: relative;
+      overflow: hidden;
+      animation: centerBreathe 3s ease-in-out infinite;
+    }
+
+    .center-node-grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 10px 10px;
+      border-radius: inherit;
+    }
+
+    #center-pulse {
+      position: absolute;
+      inset: -1px;
+      border-radius: 25px;
+      border: 1.5px solid rgba(96, 165, 250, 0.5);
+      animation: pulseRing 2.4s ease-out infinite;
+    }
+
+    .center-node-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    #scan-line {
+      transform-origin: 270px 270px;
+      animation: scanSweep 8s linear infinite;
+    }
+
+    /* orbit-node节点【修复：放大节点+加大文字，解决看不清】 */
+    .orbit-node {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 6px;
+      border: 1px solid rgba(59, 130, 246, 0.18);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(12px);
+      cursor: pointer;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+        border-color 0.35s,
+        background 0.35s;
+      will-change: transform;
+      width: 110px;
+      height: 110px;
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(59, 130, 246, 0.12);
+      animation: borderGlow 6s ease-in-out infinite;
+    }
+
+    .orbit-node span {
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(226, 232, 240, 0.95);
+      letter-spacing: 0.02em;
+      font-family: Outfit, sans-serif;
+      line-height: 1.35;
+      white-space: normal !important;
+      text-align: center;
+    }
+
+    .orbit-node:hover,
+    .orbit-node.hovered {
+      transform: scale(1.12) !important;
+      border-color: rgba(96, 165, 250, 0.6);
+      background: rgba(26, 86, 214, 0.22);
+      box-shadow: 0 4px 16px rgba(26, 86, 214, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .orbit-node svg {
+      transition: transform 0.3s;
+    }
+
+    .orbit-node:hover svg,
+    .orbit-node.hovered svg {
+      transform: scale(1.12);
+    }
+
+    .orbit-connector {
+      position: absolute;
+      pointer-events: none;
+      transform-origin: 0 0;
+    }
+
+    @keyframes borderGlow {
+      0% {
+        box-shadow: 0 0 0 0 rgba(96, 165, 250, 0);
+        border-color: rgba(59, 130, 246, 0.12);
+      }
+
+      30% {
+        box-shadow: 0 0 14px 2px rgba(96, 165, 250, 0.35);
+        border-color: rgba(96, 165, 250, 0.45);
+      }
+
+      70% {
+        box-shadow: 0 0 14px 2px rgba(96, 165, 250, 0.35);
+        border-color: rgba(96, 165, 250, 0.45);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(96, 165, 250, 0);
+        border-color: rgba(59, 130, 246, 0.12);
+      }
+    }
+
+    @keyframes travelParticle {
+      0% {
+        stroke-dashoffset: 60;
+        opacity: 0;
+      }
+
+      15% {
+        opacity: 1;
+      }
+
+      85% {
+        opacity: 1;
+      }
+
+      100% {
+        stroke-dashoffset: 0;
+        opacity: 0;
+      }
+    }
+
+    @keyframes centerBreathe {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.03);
+      }
+    }
+
+    @keyframes pulseRing {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(1.35);
+        opacity: 0;
+      }
+    }
+
+    @keyframes scanSweep {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes pulse-slow {
+
+      0%,
+      100% {
+        opacity: 0.25;
+      }
+
+      50% {
+        opacity: 0.8;
+      }
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0;
+      }
+    }
+
+    @keyframes marquee {
+      0% {
+        transform: translateX(0);
+      }
+
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    #orbit-tooltip {
+      position: absolute;
+      z-index: 30;
+      background: rgba(7, 22, 48, 0.92);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 14px;
+      padding: 12px 14px;
+      width: 180px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s;
+      transform: scale(0.92) translateY(4px);
+    }
+
+    #orbit-tooltip.visible {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: scale(1) translateY(0);
+    }
+
+    #tooltip-icon-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 7px;
+    }
+
+    #tooltip-desc {
+      font-size: 14px;
+      line-height: 1.6;
+      color: rgba(148, 163, 184, 0.9);
+      font-family: 'Outfit', sans-serif;
+    }
+
+    #tooltip-icon-row span {
+      font-size: 14px !important;
+    }
+
+    /* PC大屏 Hero左右间距加大 */
+    @media (min-width:1024px) {
+      #hero .grid {
+        gap: 48px !important;
+      }
+
+      #orbit-scene {
+        width: min(640px, 90vw);
+        height: min(640px, 90vw);
+      }
+    }
+
+    /* ── 移动端轨道降级为静态网格 ── */
+    @media (max-width:640px) {
+
+      #orbit-scene {
+        width: 100% !important;
+        height: auto !important;
+        padding: 20px 0;
+      }
+
+      #orbit-scene>svg:first-of-type {
+        display: none !important;
+      }
+
+      .connSVG {
+        display: none !important;
+      }
+
+      #center-node {
+        display: none !important;
+      }
+
+      #orbit-nodes {
+        position: relative !important;
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 12px !important;
+        width: 100% !important;
+        height: auto !important;
+      }
+
+      .orbit-node {
+        position: relative !important;
+        left: auto !important;
+        top: auto !important;
+        transform: none !important;
+        width: 100% !important;
+        height: auto !important;
+        padding: 16px 8px !important;
+        border-radius: 16px !important;
+        backdrop-filter: none;
+      }
+
+      .orbit-node span {
+        font-size: 12px !important;
+      }
+
+      #orbit-tooltip {
+        display: none !important;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .stats-row-md-stack {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-row-md-stack>div {
+        border-left: none !important;
+        padding-left: 0 !important;
+        padding-top: 1.2rem;
+        margin-top: 1.2rem;
+        border-top: 1px solid rgba(59, 130, 246, 0.08);
+      }
+
+      .stats-row-md-stack>div:first-child {
+        border-top: none;
+        padding-top: 0;
+        margin-top: 0;
+      }
+    }
+
+    #typewriter-text {
+      font-size: 1rem;
+    }
+
+    #main-nav a {
+      font-size: 1rem !important;
+    }
+
+    .flex.flex-wrap.gap-3 span {
+      font-size: 0.9rem !important;
+    }
+
+    @media (max-width:640px) {
+      .stat-num {
+        font-size: 1.4rem;
+        height: unset !important;
+      }
+
+      .hero-title {
+        font-size: 2.2rem !important;
+        line-height: 1.2;
+      }
+
+      .orbit-node span {
+        font-size: 13px !important;
+      }
+    }
+
+    .ai-bubble-preview {
+      margin-top: 1rem;
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: rgba(7, 22, 48, 0.6);
+      border: 1px solid rgba(59, 130, 246, 0.1);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .ai-bubble-chat {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .ai-badge-sm {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: bold;
+      color: #fff;
+      background: linear-gradient(135deg, #1a56d6, #3b82f6);
+    }
+
+    .ai-bubble-text {
+      font-size: 12px;
+      line-height: 1.45;
+      color: #cbd5e1;
+      background: rgba(26, 86, 214, 0.08);
+      border: 1px solid rgba(59, 130, 246, 0.12);
+      border-radius: 10px;
+      border-top-left-radius: 2px;
+      padding: 8px 10px;
+    }
+
+    .status-dot-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation: pulse-slow 2s ease-in-out infinite;
+    }
+
+    .mini-stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 1rem;
+    }
+
+    .mini-stat-item {
+      background: rgba(26, 86, 214, 0.08);
+      border: 1px solid rgba(59, 130, 246, 0.1);
+      border-radius: 10px;
+      text-align: center;
+      padding: 10px 4px;
+    }
+
+    .mini-stat-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .mini-stat-label {
+      font-size: 10px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    .text-slate-400 {
+      color: #93c5fd !important;
+    }
+
+    .feature-item.active {
+      background: rgba(26, 86, 214, 0.28);
+      border-radius: 12px;
+      padding: 8px 10px;
+      margin-left: -10px;
+      margin-right: -10px;
+    }
+
+    .feature-item {
+      transition: background 0.24s;
+    }
+
+    .tag-badge {
+      background: rgba(37, 99, 235, 0.15);
+      border: 1px solid rgba(96, 165, 250, 0.25);
+      color: #93c5fd;
+      font-size: 0.7rem;
+      padding: 2px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.05em;
+    }
+
+    .tab-btn.active {
+      background-color: rgba(59, 130, 246, 0.2);
+      border-color: rgba(96, 165, 250, 0.6);
+      color: rgb(147, 197, 253);
+    }
+  </style>
+
+</head>
+
+<body class="antialiased">
+  <canvas id="particle-canvas"></canvas>
+  <script>
+    // ── Particle Neural Network ──────────────────────
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let animId;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    function createParticles() {
+      particles = [];
+      const count = Math.min(Math.floor(window.innerWidth / 14), 100);
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.35,
+          vy: (Math.random() - 0.5) * 0.35,
+          r: Math.random() * 1.8 + 0.5,
+          a: Math.random() * 0.6 + 0.2,
+        });
+      }
+    }
+
+    function drawParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(96,165,250,' + p.a + ')';
+        ctx.fill();
+      });
+
+      // Draw connections
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 130) {
+            const alpha = (1 - dist / 130) * 0.25;
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(96,165,250,' + alpha + ')';
+            ctx.lineWidth = 0.6;
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      animId = requestAnimationFrame(drawParticles);
+    }
+
+    resizeCanvas();
+    createParticles();
+    drawParticles();
+
+    const resizeTimer = { id: null };
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer.id);
+      resizeTimer.id = setTimeout(() => {
+        cancelAnimationFrame(animId);
+        resizeCanvas();
+        createParticles();
+        drawParticles();
+      }, 200);
+    });
+  </script>
+  <!-- SECTION 0 · NAVIGATION -->
+  <nav id="main-nav" class="nav-blur">
+    <div class="max-w-7xl mx-auto px-6 md:px-8" style="background-color: #040d1e;">
+      <div class="flex items-center justify-between h-16 md:h-[72px]">
+        <!-- Logo -->
+        <a href="#" class="flex items-center gap-2.5 group" id="nav-logo">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center"
+            style="background:linear-gradient(135deg,#1a56d6,#2563eb);">
+            <img src="images/logo.png" alt="REALAX AI" style="width:22px;height:22px;object-fit:contain;">
+          </div>
+          <span class="text-white font-semibold text-lg tracking-tight">Realax <span
+              class="text-gradient font-bold">AI</span></span>
+        </a>
+        <!-- Desktop nav -->
+        <div class="hidden md:flex items-center gap-8">
+          <a href="#hero" class="text-slate-400 hover:text-white text-sm font-medium transition-colors duration-200"
+            id="nav-home-link">Home</a>
+          <a href="#pain-points"
+            class="text-slate-400 hover:text-white text-sm font-medium transition-colors duration-200"
+            id="nav-product-link">Features</a>
+          <a href="#pricing" class="text-slate-400 hover:text-white text-sm font-medium transition-colors duration-200"
+            id="nav-pricing-link">Pricing</a>
+          <a href="#contact" class="text-slate-400 hover:text-white text-sm font-medium transition-colors duration-200"
+            id="nav-contact-link">Contact</a>
+          <button id="nav-demo-btn" class="btn-primary px-5 py-2 rounded-xl text-sm font-semibold text-white">Book
+            Demo</button>
+        </div>
+        <!-- Mobile hamburger -->
+        <button id="mobile-toggle" class="md:hidden flex flex-col gap-1.5 p-2">
+          <span class="w-5 h-0.5 bg-slate-300 transition-all duration-300" id="ham-1"></span>
+          <span class="w-5 h-0.5 bg-slate-300 transition-all duration-300" id="ham-2"></span>
+          <span class="w-5 h-0.5 bg-slate-300 transition-all duration-300" id="ham-3"></span>
+        </button>
+      </div>
+      <!-- Mobile menu -->
+      <div id="mobile-menu" class="md:hidden border-t border-slate-800/50">
+        <div class="py-4 flex flex-col gap-1">
+          <a href="#hero"
+            class="text-slate-300 hover:text-white px-2 py-2.5 text-sm font-medium transition-colors rounded-lg hover:bg-white/5"
+            id="mob-nav-home">Home</a>
+          <a href="#pain-points"
+            class="text-slate-300 hover:text-white px-2 py-2.5 text-sm font-medium transition-colors rounded-lg hover:bg-white/5"
+            id="mob-nav-product">Features</a>
+          <a href="#pricing"
+            class="text-slate-300 hover:text-white px-2 py-2.5 text-sm font-medium transition-colors rounded-lg hover:bg-white/5"
+            id="mob-nav-pricing">Pricing</a>
+          <a href="#contact"
+            class="text-slate-300 hover:text-white px-2 py-2.5 text-sm font-medium transition-colors rounded-lg hover:bg-white/5"
+            id="mob-nav-contact">Contact</a>
+          <button id="mob-demo-btn"
+            class="btn-primary mt-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white text-left">Book
+            Demo</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <script>
+    const header = document.querySelector('#main-nav')
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 10) {
+        header.classList.add('scrolled')
+      } else {
+        header.classList.remove('scrolled')
+      }
+    })
+  </script>
+  <!-- SECTION 1 · HERO-->
+  <section id="hero" class="relative min-h-[100dvh] flex items-center mesh-bg overflow-hidden">
+    <!-- Star field -->
+    <div class="stars" id="star-field"></div>
+    <!-- Ambient glows -->
+    <div class="absolute top-1/4 left-0 w-[600px] h-[600px] rounded-full pointer-events-none"
+      style="background:radial-gradient(circle,rgba(26,86,214,0.12) 0%,transparent 70%);"></div>
+    <div class="absolute bottom-0 right-0 w-[400px] h-[400px] rounded-full pointer-events-none"
+      style="background:radial-gradient(circle,rgba(37,99,235,0.08) 0%,transparent 70%);"></div>
+
+    <div class="max-w-7xl mx-auto px-6 md:px-8 w-full py-20">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <!-- Left: text -->
+        <div class="space-y-8">
+          <!-- Badge -->
+          <div
+            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass text-xs font-medium text-teal-300 reveal"
+            style="animation-delay:0s">
+            <div class="dot-live"></div>
+            AI-Native Real Estate Operating Platform
+          </div>
+
+          <!-- Headline 来自PPT封面 REALAXAI -->
+          <div class="reveal" style="animation-delay:0.1s">
+            <h1 class="hero-title font-bold leading-[1.15] tracking-tight text-white"
+              style="font-size:clamp(2rem,4.5vw,3.5rem);">
+              REALAX<span class="text-gradient">AI</span>
+            </h1>
+            <p class="mt-6 text-slate-400 leading-relaxed text-base md:text-lg max-w-xl">
+              Not a chatbot. Not a dashboard. A digital workforce embedded in your real-estate operations.
+            </p>
+          </div>
+
+          <!-- 打字机动态状态 -->
+          <div class="flex items-center gap-3 reveal" style="animation-delay:0.15s">
+            <div class="ai-btn">
+              <div class="ai-text">AI</div>
+            </div>
+            <span id="typewriter-text" class="text-xs text-slate-400 font-mono cursor-blink"></span>
+          </div>
+
+          <!-- Core value pills【PPT封面】 -->
+          <div class="flex flex-wrap gap-3 reveal" style="animation-delay:0.2s">
+            <span class="px-3 py-1 rounded-lg text-xs font-medium text-slate-300 border border-slate-700/60">Reduce
+              Cost</span>
+            <span class="px-3 py-1 rounded-lg text-xs font-medium text-slate-300 border border-slate-700/60">Improve
+              Efficiency</span>
+            <span class="px-3 py-1 rounded-lg text-xs font-medium text-slate-300 border border-slate-700/60">Grow
+              Smarter</span>
+          </div>
+
+          <!-- CTAs -->
+          <div class="flex flex-wrap gap-4 reveal" style="animation-delay:0.3s">
+            <button id="hero-consult-btn"
+              class="btn-primary px-7 py-3.5 rounded-xl text-sm font-semibold text-white flex items-center gap-2">
+              <i data-lucide="calendar" class="w-4 h-4"></i>
+              Learn More
+            </button>
+            <button id="hero-demo-btn"
+              class="btn-outline px-7 py-3.5 rounded-xl text-sm font-semibold flex items-center gap-2">
+              <i data-lucide="play-circle" class="w-4 h-4"></i>
+              Book Demo
+            </button>
+          </div>
+
+          <!-- Stats row -->
+          <div class="grid grid-cols-3 gap-4 pt-4 reveal stats-row-md-stack"
+            style="animation-delay:0.4s; grid-template-columns: repeat(3, 1fr);">
+            <div class="flex flex-col items-center lg:items-start">
+              <div class="stat-num text-white">Context-as-a-Service</div>
+              <div class="text-sm text-slate-400 mt-2">For Real Estate</div>
+            </div>
+            <div class="flex flex-col items-center lg:items-start border-l border-slate-700 pl-6">
+              <div class="stat-num text-white">6</div>
+              <div class="text-sm text-slate-400 mt-2">Embedded AI Agents</div>
+            </div>
+            <div class="flex flex-col items-center lg:items-start border-l border-slate-700 pl-6">
+              <div class="stat-num text-white">24/7</div>
+              <div class="text-sm text-slate-400 mt-2">Digital Workforce</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: AI Orbit Feature Animation【6节点完整配置】 -->
+        <div class="relative flex justify-center lg:justify-end reveal" style="animation-delay:0.2s">
+          <div id="orbit-scene" class="select-none">
+            <!-- Orbit SVG track -->
+            <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 460 460" fill="none">
+              <defs>
+                <linearGradient id="orbitGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#1a56d6" stop-opacity="0" />
+                  <stop offset="30%" stop-color="#3b82f6" stop-opacity="0.35" />
+                  <stop offset="70%" stop-color="#60a5fa" stop-opacity="0.35" />
+                  <stop offset="100%" stop-color="#1a56d6" stop-opacity="0" />
+                </linearGradient>
+                <radialGradient id="sceneBg" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#0d2d63" stop-opacity="0.25" />
+                  <stop offset="100%" stop-color="#040d1e" stop-opacity="0" />
+                </radialGradient>
+              </defs>
+              <ellipse cx="230" cy="230" rx="210" ry="210" fill="url(#sceneBg)" />
+              <ellipse cx="230" cy="230" rx="195" ry="130" stroke="rgba(59,130,246,0.07)" stroke-width="1" fill="none"
+                stroke-dasharray="6 10" />
+              <ellipse id="orbit-track" cx="230" cy="230" rx="175" ry="118" stroke="url(#orbitGrad)" stroke-width="1.2"
+                fill="none" stroke-dasharray="4 8" />
+              <ellipse cx="230" cy="230" rx="60" ry="60" stroke="rgba(59,130,246,0.1)" stroke-width="1" fill="none" />
+              <!-- <line id="scan-line" x1="230" y1="230" x2="405" y2="230" stroke="rgba(96,165,250,0.15)"
+                stroke-width="1" /> -->
+            </svg>
+
+            <!-- Center node -->
+            <div class="absolute" style="left:50%;top:50%;transform:translate(-50%,-50%);z-index:10;">
+              <div id="center-node">
+                <div class="center-node-grid-bg"></div>
+                <div id="center-pulse"></div>
+                <div class="center-node-content">
+                  <img src="images/logo.png" alt="REALAX AI" style="width:32px;height:32px;object-fit:contain;">
+                  <span
+                    style="font-size:9px;font-weight:700;letter-spacing:0.08em;color:rgba(255,255,255,0.95);font-family:'Outfit',sans-serif;">REALAX
+                    AI</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 6 Feature orbit nodes -->
+            <div id="orbit-nodes" class="absolute inset-0"></div>
+
+            <!-- Tooltip popup -->
+            <div id="orbit-tooltip">
+              <div id="tooltip-icon-row"></div>
+              <div id="tooltip-desc"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <script>
+    {
+      // ── Star field 星空粒子 ──
+      const starField = document.getElementById('star-field');
+      if (starField) {
+        for (let i = 0; i < 60; i++) {
+          const star = document.createElement('div');
+          star.className = 'star';
+          star.style.left = Math.random() * 100 + '%';
+          star.style.top = Math.random() * 100 + '%';
+          star.style.opacity = (Math.random() * 0.5 + 0.1).toString();
+          const size = Math.random() * 2 + 0.5;
+          star.style.width = size + 'px';
+          star.style.height = size + 'px';
+          star.style.setProperty('--dur', (Math.random() * 4 + 2) + 's');
+          star.style.animationDelay = Math.random() * 4 + 's';
+          starField.appendChild(star);
+        }
+      }
+
+      // ── Heatmap grid ──
+      const heatmapGrid = document.getElementById('heatmap-grid');
+      if (heatmapGrid) {
+        const intensities = [
+          0.2, 0.3, 0.5, 0.7, 0.4, 0.6, 0.3, 0.2,
+          0.3, 0.6, 0.8, 0.9, 0.7, 0.5, 0.4, 0.3,
+          0.4, 0.7, 1.0, 0.9, 0.8, 0.6, 0.5, 0.3,
+          0.3, 0.5, 0.8, 0.7, 0.6, 0.5, 0.4, 0.2,
+          0.2, 0.4, 0.6, 0.5, 0.4, 0.3, 0.3, 0.2,
+          0.2, 0.3, 0.4, 0.4, 0.3, 0.2, 0.2, 0.1,
+        ];
+        intensities.forEach(function (intensity) {
+          const cell = document.createElement('div');
+          cell.className = 'rounded-sm';
+          cell.style.height = '18px';
+          const alpha = intensity;
+          const r = Math.round(26 + (59 - 26) * intensity);
+          const g = Math.round(86 + (130 - 86) * intensity);
+          const b = Math.round(214 + (246 - 214) * intensity);
+          cell.style.background = 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+          cell.style.transition = 'opacity 0.3s';
+          heatmapGrid.appendChild(cell);
+        });
+      }
+
+      // ── Typewriter effect 打字机 ──
+      var phrases = [
+        'Monitoring DSCR & portfolio cash-flow in real-time…',
+        'Pulling local regulatory compliance updates…',
+        'Analyzing competitor rental pricing & market drift…',
+        'Generating quarterly financial reporting statements…',
+      ];
+      var phraseIdx = 0;
+      var charIdx = 0;
+      var typeEl = document.getElementById('typewriter-text');
+      var typeTimer = null;
+      var pauseTimer = null;
+
+      function typeChar() {
+        if (!typeEl) return;
+        var phrase = phrases[phraseIdx];
+        if (charIdx < phrase.length) {
+          typeEl.textContent = phrase.substring(0, charIdx + 1);
+          charIdx++;
+          typeTimer = setTimeout(typeChar, 45);
+        } else {
+          pauseTimer = setTimeout(function () {
+            charIdx = 0;
+            phraseIdx = (phraseIdx + 1) % phrases.length;
+            typeChar();
+          }, 3200);
+        }
+      }
+      if (typeEl) typeChar();
+
+      // ORBIT FEATURE ANIMATION 轨道动画
+      (function initOrbit() {
+        var scene = document.getElementById('orbit-scene');
+        var container = document.getElementById('orbit-nodes');
+        var tooltip = document.getElementById('orbit-tooltip');
+        var tipIconRow = document.getElementById('tooltip-icon-row');
+        var tipDesc = document.getElementById('tooltip-desc');
+        if (!scene || !container) return;
+
+        // ── Feature data ──
+        const orbitFeatureNodes = [
+          {
+            title: "Financial Reporting Agent",
+            desc: "Generates weekly, monthly, and quarterly statements automatically.",
+            color: "#a78bfa",
+            svgPath: '<rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M3 10h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M7 16l3-3 3 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>'
+          },
+          {
+            title: "Portfolio Monitor Agent",
+            desc: "Tracks DSCR, delinquency, vacancy, and cash flow in real time.",
+            color: "#f59e0b",
+            svgPath: '<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/><path d="M12 6v6l4 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>'
+          },
+          {
+            title: "Maintenance Coordinator",
+            desc: "Routes requests, contacts vendors, tracks completion.",
+            color: "#34d399",
+            svgPath: '<rect x="4" y="5" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M8 9l2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="13" x2="16" y2="13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="8" y1="17" x2="14" y2="17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>'
+          },
+          {
+            title: "Market Intelligence Agent",
+            desc: "Monitors competitor pricing, market drift, and supply changes.",
+            color: "#f472b6",
+            svgPath: '<circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/><path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 12l2.5-2.5L13 11l4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>'
+          },
+          {
+            title: "Compliance Watcher Agent",
+            desc: "Tracks local regulatory changes across all your properties.",
+            color: "#38bdf8",
+            svgPath: '<path d="M12 22s8-4 8-10V6l-8-4-8 4v6c0 6 8 10 8 10z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>'
+          },
+          {
+            title: "Tenant Service Agent",
+            desc: "Multilingual 24/7 support via phone and online — English, Chinese, Spanish, and more.",
+            color: "#60a5fa",
+            svgPath: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>'
+          }
+        ];
+
+        var N = orbitFeatureNodes.length;
+        var CX = 230;
+        var CY = 230;
+        var RX = 195;
+        var RY = 132;
+        var NODE_SIZE = 110;
+        var angleOffset = 0;
+        var speed = 0.28;
+        var paused = false;
+        var hoveredIdx = null;
+        var rafId = null;
+        var scale = scene.offsetWidth / 460;
+
+        function updateScale() {
+          scale = scene.offsetWidth / 460;
+        }
+        window.addEventListener('resize', updateScale);
+
+        function getPos(angleDeg) {
+          var rad = angleDeg * Math.PI / 180;
+          return {
+            x: CX + RX * Math.cos(rad),
+            y: CY + RY * Math.sin(rad),
+          };
+        }
+
+        function placeNode(el, pos) {
+          var px = pos.x * scale - NODE_SIZE / 2;
+          var py = pos.y * scale - NODE_SIZE / 2;
+          el.style.left = px + 'px';
+          el.style.top = py + 'px';
+        }
+
+        var nodeEls = [];
+        var connectorEls = [];
+
+        var connSVG = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        connSVG.setAttribute('class', 'absolute inset-0 w-full h-full pointer-events-none');
+        connSVG.setAttribute('viewBox', '0 0 460 460');
+        connSVG.style.zIndex = '2';
+        container.appendChild(connSVG);
+
+        orbitFeatureNodes.forEach(function (feat, i) {
+          var lineG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('stroke', feat.color);
+          line.setAttribute('stroke-width', '1');
+          line.setAttribute('stroke-opacity', '0.25');
+          line.setAttribute('stroke-linecap', 'round');
+          lineG.appendChild(line);
+
+          var particle = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          particle.setAttribute('stroke', feat.color);
+          particle.setAttribute('stroke-width', '2');
+          particle.setAttribute('stroke-linecap', 'round');
+          particle.setAttribute('stroke-dasharray', '8 60');
+          particle.setAttribute('stroke-dashoffset', '60');
+          particle.style.opacity = '0';
+          lineG.appendChild(particle);
+          connSVG.appendChild(lineG);
+          connectorEls.push({ line: line, particle: particle, lineG: lineG });
+
+          var node = document.createElement('div');
+          node.className = 'orbit-node';
+          node.style.zIndex = '5';
+          node.dataset.idx = i;
+          node.style.animationDelay = (i * 1000) + 'ms';
+
+          var iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          iconSvg.setAttribute('width', '24');
+          iconSvg.setAttribute('height', '24');
+          iconSvg.setAttribute('viewBox', '0 0 24 24');
+          iconSvg.style.color = feat.color;
+          iconSvg.style.flexShrink = '0';
+          iconSvg.innerHTML = feat.svgPath;
+
+          var label = document.createElement('span');
+          label.textContent = feat.title;
+
+          node.appendChild(iconSvg);
+          node.appendChild(label);
+          container.appendChild(node);
+          nodeEls.push(node);
+        });
+
+        function resetHoverState() {
+          hoveredIdx = null;
+          paused = false;
+          nodeEls.forEach(function (n) { n.classList.remove('hovered'); });
+          tooltip.classList.remove('visible');
+        }
+
+        function step() {
+          if (!paused) {
+            angleOffset += speed;
+            if (angleOffset >= 360) angleOffset -= 360;
+          }
+
+          orbitFeatureNodes.forEach(function (feat, i) {
+            var angleDeg = angleOffset + i * (360 / N);
+            var pos = getPos(angleDeg);
+            placeNode(nodeEls[i], pos);
+
+            var conn = connectorEls[i];
+            conn.line.setAttribute('x1', String(CX));
+            conn.line.setAttribute('y1', String(CY));
+            conn.line.setAttribute('x2', String(pos.x));
+            conn.line.setAttribute('y2', String(pos.y));
+            conn.particle.setAttribute('x1', String(CX));
+            conn.particle.setAttribute('y1', String(CY));
+            conn.particle.setAttribute('x2', String(pos.x));
+            conn.particle.setAttribute('y2', String(pos.y));
+
+            if (hoveredIdx === i) {
+              conn.line.setAttribute('stroke-opacity', '0.7');
+              conn.line.setAttribute('stroke-width', '1.5');
+              conn.particle.style.animation = 'travelParticle 1.4s linear infinite';
+              conn.particle.style.opacity = '1';
+            } else {
+              conn.line.setAttribute('stroke-opacity', '0.2');
+              conn.line.setAttribute('stroke-width', '1');
+              conn.particle.style.animation = '';
+              conn.particle.style.opacity = '0';
+            }
+
+            if (hoveredIdx !== null && hoveredIdx !== i) {
+              nodeEls[i].style.opacity = '0.4';
+            } else {
+              nodeEls[i].style.opacity = '1';
+            }
+          });
+
+          if (hoveredIdx !== null) {
+            var hPos = getPos(angleOffset + hoveredIdx * (360 / N));
+            var tx = hPos.x * scale;
+            var ty = hPos.y * scale;
+            var tooltipW = 220;
+            var tooltipH = 100;
+            var tipX = tx - tooltipW / 2;
+            var tipY = ty < scene.offsetHeight / 2
+              ? ty + NODE_SIZE / 2 + 10
+              : ty - NODE_SIZE / 2 - tooltipH - 10;
+            tipX = Math.max(4, Math.min(scene.offsetWidth - tooltipW - 4, tipX));
+            tipY = Math.max(4, Math.min(scene.offsetHeight - tooltipH - 4, tipY));
+            tooltip.style.left = tipX + 'px';
+            tooltip.style.top = tipY + 'px';
+          }
+
+          rafId = requestAnimationFrame(step);
+        }
+
+        container.addEventListener('mouseover', function (e) {
+          var node = e.target.closest('.orbit-node');
+          if (!node) return;
+          var idx = parseInt(node.dataset.idx, 10);
+          if (isNaN(idx)) return;
+          hoveredIdx = idx;
+          paused = true;
+          node.classList.add('hovered');
+
+          var feat = orbitFeatureNodes[idx];
+          tipIconRow.innerHTML = '';
+          var iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          iconSvg.setAttribute('width', '16');
+          iconSvg.setAttribute('height', '16');
+          iconSvg.setAttribute('viewBox', '0 0 24 24');
+          iconSvg.style.color = feat.color;
+          iconSvg.style.flexShrink = '0';
+          iconSvg.innerHTML = feat.svgPath;
+          tipIconRow.appendChild(iconSvg);
+
+          var nameSpan = document.createElement('span');
+          nameSpan.textContent = feat.title;
+          nameSpan.style.cssText = 'font-size:12px;font-weight:700;color:#e2e8f0;font-family:Outfit,sans-serif;';
+          tipIconRow.appendChild(nameSpan);
+
+          tipDesc.textContent = feat.desc;
+          tooltip.classList.add('visible');
+        });
+
+        container.addEventListener('mouseleave', resetHoverState);
+        tooltip.addEventListener('mouseleave', resetHoverState);
+
+        container.addEventListener('click', function (e) {
+          var node = e.target.closest('.orbit-node');
+          if (!node) return;
+          var idx = parseInt(node.dataset.idx, 10);
+          if (isNaN(idx)) return;
+          if (hoveredIdx === idx) {
+            resetHoverState();
+          } else {
+            hoveredIdx = idx;
+            paused = true;
+            nodeEls.forEach(function (n) { n.classList.remove('hovered'); });
+            node.classList.add('hovered');
+
+            var feat = orbitFeatureNodes[idx];
+            tipIconRow.innerHTML = '';
+            var sv = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            sv.setAttribute('width', '16'); sv.setAttribute('height', '16');
+            sv.setAttribute('viewBox', '0 0 24 24');
+            sv.style.color = feat.color; sv.style.flexShrink = '0';
+            sv.innerHTML = feat.svgPath;
+            tipIconRow.appendChild(sv);
+            var ns = document.createElement('span');
+            ns.textContent = feat.title;
+            ns.style.cssText = 'font-size:12px;font-weight:700;color:#e2e8f0;font-family:Outfit,sans-serif;';
+            tipIconRow.appendChild(ns);
+            tipDesc.textContent = feat.desc;
+            tooltip.classList.add('visible');
+          }
+        });
+
+        rafId = requestAnimationFrame(step);
+
+        document.addEventListener('visibilitychange', function () {
+          if (document.hidden) {
+            cancelAnimationFrame(rafId);
+          } else {
+            rafId = requestAnimationFrame(step);
+          }
+        });
+      })();
+
+    }
+  </script>
+  <!-- SECTION 2 · VIDEO + BRAND INTRO -->
+  <section id="brand" class="relative py-28 md:py-40 section-divider overflow-hidden">
+    <div class="max-w-7xl mx-auto px-6 md:px-8 relative z-10">
+      <!-- Tab 切换按钮 -->
+      <div class="flex flex-wrap gap-3 mb-10" style="justify-content: center;">
+        <button
+          class="tab-btn active px-5 py-2 rounded-full border border-slate-700/50 text-sm font-medium transition-all"
+          data-tab="pro">
+          Pro — Full Real-Estate AI Platform
+        </button>
+        <button class="tab-btn px-5 py-2 rounded-full border border-slate-700/50 text-sm font-medium transition-all"
+          data-tab="lite">
+          Lite — Maintenance-Focused Edition
+        </button>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <!-- Left: video frame 视频区域（共用容器，切换source） -->
+        <div class="reveal order-2 lg:order-1">
+          <div style="isolation: isolate; opacity: 1 !important;">
+            <div class="rounded-2xl overflow-hidden relative" style="min-height:280px;">
+              <div class="absolute inset-x-0 top-0 opacity-40 pointer-events-none"
+                style="height:calc(100% - 42px);background:var(--mesh-bg);"></div>
+              <div class="absolute inset-0">
+                <video id="brandVideo" class="h-full object-contain" playsinline controls preload="metadata">
+                  <source id="videoSource"
+                    src="https://rems-bucket-20250330.s3.us-east-2.amazonaws.com/vedio/7%E6%9C%8828%E6%97%A5.mp4"
+                    type="video/mp4">
+                </video>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Brand Info-->
+        <div class="reveal order-1 lg:order-2" style="transition-delay:0.15s">
+          <div class="tab-content active" data-tab="pro">
+            <span
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700/50 text-xs text-slate-400 mb-5">Our
+              Story</span>
+            <h2 class="text-3xl md:text-4xl font-outfit font-700 text-white mt-4 mb-6">
+              Simplify Real-Estate Investment,<br />
+              <span class="text-gradient">Empower Data Intelligence</span>
+            </h2>
+            <p class="text-slate-400 leading-relaxed mb-6">
+              Realax AI was born from a simple mission: fix the fundamental flaw of legacy property software — storing
+              data without intelligent analysis. We believe every real-estate investor deserves an AI management team
+              that never clocks out.
+            </p>
+
+            <!-- Target Clients -->
+            <div class="mb-6">
+              <p class="text-sm font-medium text-slate-300 mb-3">Who We Serve</p>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="flex items-center gap-2 glass-light rounded-xl px-3 py-2.5">
+                  <i data-lucide="user" class="w-4 h-4 text-blue-400"></i>
+                  <span class="text-sm text-slate-300">Individual Investors</span>
+                </div>
+                <div class="flex items-center gap-2 glass-light rounded-xl px-3 py-2.5">
+                  <i data-lucide="building-2" class="w-4 h-4 text-blue-400"></i>
+                  <span class="text-sm text-slate-300">Asset Managers / Family Offices</span>
+                </div>
+                <div class="flex items-center gap-2 glass-light rounded-xl px-3 py-2.5">
+                  <i data-lucide="home" class="w-4 h-4 text-blue-400"></i>
+                  <span class="text-sm text-slate-300">Property Operation Teams</span>
+                </div>
+                <div class="flex items-center gap-2 glass-light rounded-xl px-3 py-2.5">
+                  <i data-lucide="briefcase" class="w-4 h-4 text-blue-400"></i>
+                  <span class="text-sm text-slate-300">Real-Estate Professionals</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Core Capabilities -->
+            <div class="space-y-3 mb-8">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-500/15 border border-blue-500/25">
+                  <i data-lucide="users" class="w-4 h-4 text-blue-400"></i>
+                </div>
+                <div>
+                  <p class="text-sm text-white font-medium">Local Professional Teams</p>
+                  <p class="text-xs text-slate-400">On-ground support across 4 U.S. cities</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-500/15 border border-blue-500/25">
+                  <i data-lucide="globe" class="w-4 h-4 text-blue-400"></i>
+                </div>
+                <div>
+                  <p class="text-sm text-white font-medium">Global Service Capability</p>
+                  <p class="text-xs text-slate-400">Cross-time-zone management, China-U.S. seamless alignment</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-500/15 border border-blue-500/25">
+                  <i data-lucide="award" class="w-4 h-4 text-blue-400"></i>
+                </div>
+                <div>
+                  <p class="text-sm text-white font-medium">Standardized Service System</p>
+                  <p class="text-xs text-slate-400">SOP-driven workflows for consistent service quality</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Stats Metrics -->
+            <div class="grid grid-cols-3 gap-4 pt-4 border-t border-slate-800/60">
+              <div class="text-center">
+                <div class="text-2xl font-bold text-white font-mono">120<span class="text-blue-400 text-lg">+</span>
+                </div>
+                <div class="text-xs text-slate-500 mt-1">On-site Specialists</div>
+              </div>
+              <div class="text-center border-x border-slate-800/60">
+                <div class="text-2xl font-bold text-white font-mono">6</div>
+                <div class="text-xs text-slate-500 mt-1">Countries Covered</div>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-bold text-white font-mono">ISO</div>
+                <div class="text-xs text-slate-500 mt-1">Standardized System</div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-content hidden" data-tab="lite">
+            <span
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700/50 text-xs text-slate-400 mb-5">Lite
+              Edition</span>
+            <h2 class="text-3xl md:text-4xl font-outfit font-700 text-white mt-4 mb-6">
+              Streamline Property Maintenance,<br />
+              <span class="text-gradient">Focused Repair-Centered Platform</span>
+            </h2>
+            <p class="text-slate-400 leading-relaxed mb-6">
+              Realax AI Lite is a full-featured edition built for day-to-day property maintenance. Designed for property
+              managers, maintenance vendors and residents, it delivers a complete end-to-end repair workflow to
+              streamline daily property operations.
+            </p>
+            <!-- Who We Serve Lite 服务对象，与Pro保持统一标题 -->
+            <div class="mb-6">
+              <p class="text-sm font-medium text-slate-300 mb-3">Who We Serve</p>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="flex items-center gap-2 glass-light rounded-xl px-3 py-2.5">
+                  <i data-lucide="home" class="w-4 h-4 text-blue-400"></i>
+                  <span class="text-sm text-slate-300">Small-scale Landlords</span>
+                </div>
+                <div class="flex items-center gap-2 glass-light rounded-xl px-3 py-2.5">
+                  <i data-lucide="building" class="w-4 h-4 text-blue-400"></i>
+                  <span class="text-sm text-slate-300">Local Property Teams</span>
+                </div>
+                <div class="flex items-center gap-2 glass-light rounded-xl px-3 py-2.5">
+                  <i data-lucide="wrench" class="w-4 h-4 text-blue-400"></i>
+                  <span class="text-sm text-slate-300">Maintenance Vendors</span>
+                </div>
+                <div class="flex items-center gap-2 glass-light rounded-xl px-3 py-2.5">
+                  <i data-lucide="users" class="w-4 h-4 text-blue-400"></i>
+                  <span class="text-sm text-slate-300">Resident Tenants</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lite 核心能力：维修工单相关 -->
+            <div class="space-y-3 mb-8">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-500/15 border border-blue-500/25">
+                  <i data-lucide="ticket" class="w-4 h-4 text-blue-400"></i>
+                </div>
+                <div>
+                  <p class="text-sm text-white font-medium">AI-Agent Work Order Creation</p>
+                  <p class="text-xs text-slate-400">Classify requests and auto-generate tickets from resident
+                    submissions</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-500/15 border border-blue-500/25">
+                  <i data-lucide="user-check" class="w-4 h-4 text-blue-400"></i>
+                </div>
+                <div>
+                  <p class="text-sm text-white font-medium">Intelligent Vendor Dispatching</p>
+                  <p class="text-xs text-slate-400">Match qualified contractors by location, expertise and real-time
+                    availability</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-500/15 border border-blue-500/25">
+                  <i data-lucide="clock" class="w-4 h-4 text-blue-400"></i>
+                </div>
+                <div>
+                  <p class="text-sm text-white font-medium">Full-Cycle Ticket Management</p>
+                  <p class="text-xs text-slate-400">Streamline quote review, job closure and complete record-keeping</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lite版本数据指标，贴合维修业务 -->
+            <div class="grid grid-cols-3 gap-4 pt-4 border-t border-slate-800/60">
+              <div class="text-center">
+                <div class="text-2xl font-bold text-white font-mono">90<span class="text-blue-400 text-lg">%</span>
+                </div>
+                <div class="text-xs text-slate-500 mt-1">Manual Admin Reduced</div>
+              </div>
+              <div class="text-center border-x border-slate-800/60">
+                <div class="text-2xl font-bold text-white font-mono">48h</div>
+                <div class="text-xs text-slate-500 mt-1">Avg. Repair Cycle</div>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-bold text-white font-mono">Lite</div>
+                <div class="text-xs text-slate-500 mt-1">Maintenance-Focused Edition</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </section>
+  <script>
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    const videoEl = document.getElementById('brandVideo');
+    const videoSource = document.getElementById('videoSource');
+
+    // 两个tab对应的视频地址，Lite这里先留空，后续你填入真实链接
+    const videoMap = {
+      pro: "https://rems-bucket-20250330.s3.us-east-2.amazonaws.com/vedio/7%E6%9C%8828%E6%97%A5.mp4",
+      lite: "https://rems-bucket-20250330.s3.us-east-2.amazonaws.com/vedio/lite.mp4"
+    };
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tabKey = btn.dataset.tab;
+        // 切换按钮状态
+        tabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        // 切换内容块
+        tabContents.forEach(content => {
+          content.classList.toggle('hidden', content.dataset.tab !== tabKey);
+        });
+        // 暂停旧视频，切换视频源
+        videoEl.pause();
+        videoSource.src = videoMap[tabKey];
+        videoEl.load();
+      });
+    });
+  </script>
+  <!-- SECTION 3 · PAIN POINTS VS SOLUTIONS -->
+  <section id="pain-points" class="relative py-28 md:py-40 section-divider overflow-hidden">
+    <div class="max-w-7xl mx-auto px-6 md:px-8">
+      <!-- 头部标题 -->
+      <div class="text-center mb-16 reveal">
+        <div
+          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700/50 text-xs text-slate-400 mb-5">
+          Pain Points VS Solutions</div>
+        <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight mb-4">Legacy Operations vs <span
+            class="text-gradient">Realax AI</span></h2>
+        <p class="text-slate-400 max-w-xl mx-auto text-base">Realax AI addresses core pain-points within
+          property operations, replacing error-prone manual work with fully-automated AI intelligence.</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <!-- 左侧：传统模式大卡片 -->
+        <div class="glass-light rounded-2xl p-8 border border-red-500/15 reveal">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-red-500/15 border border-red-500/25">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-white font-semibold">Legacy Property Operations</h3>
+              <p class="text-xs text-slate-500">Slow, high-risk & cost-heavy</p>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div class="flex items-start gap-3">
+              <div class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center bg-red-500/20 mt-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm text-white font-medium">Low Operational Efficiency</p>
+                <p class="text-xs text-slate-400 mt-0.5">Manual bookkeeping is slow. Month-end close takes days with
+                  high error rates, and financial reports are heavily delayed.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center bg-red-500/20 mt-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm text-white font-medium">Blind-Spot Risk</p>
+                <p class="text-xs text-slate-400 mt-0.5">Risks are detected too late. Tenant defaults and property
+                  damage are often discovered after losses have grown.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center bg-red-500/20 mt-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm text-white font-medium">Data Silos</p>
+                <p class="text-xs text-slate-400 mt-0.5">Data scattered across Excel sheets, emails and paper contracts.
+                  Poor organization creates barriers for cross-team collaboration.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center bg-red-500/20 mt-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm text-white font-medium">Opaque Market Insights</p>
+                <p class="text-xs text-slate-400 mt-0.5">Rent shifts, competitor updates and regulatory changes are
+                  manually gathered, resulting in outdated intelligence.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center bg-red-500/20 mt-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm text-white font-medium">Compliance Exposure</p>
+                <p class="text-xs text-slate-400 mt-0.5">Complex shifting state-level rules in the US. Missteps may
+                  trigger heavy fines or legal disputes.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center bg-red-500/20 mt-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm text-white font-medium">High Reporting Overhead</p>
+                <p class="text-xs text-slate-400 mt-0.5">Investor reports require multi-person work spanning days.
+                  Inconsistent formatting lowers stakeholder satisfaction.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧：Realax AI 解决方案大卡片 -->
+        <div class="glass-light rounded-2xl p-8 border border-blue-500/25 reveal"
+          style="transition-delay:0.15s; background: linear-gradient(135deg, rgba(10,33,72,0.6), rgba(7,22,48,0.7));">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center"
+              style="background:linear-gradient(135deg,rgba(37,99,235,0.3),rgba(59,130,246,0.2)); border:1px solid rgba(59,130,246,0.3);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-white font-semibold">Realax AI Solution</h3>
+              <p class="text-xs text-blue-300">End-to-end AI-Powered Automation</p>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div class="flex items-start gap-3">
+              <div class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center bg-blue-500/20 mt-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm text-white font-medium">Full-Workflow AI Automation</p>
+                <p class="text-xs text-slate-400 mt-0.5">AI-finance assistant auto-aggregates data, generates live
+                  reports and completes month-end close in minutes with 99.7% accuracy.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center bg-blue-500/20 mt-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm text-white font-medium">Real-Time Monitoring & Alerts</p>
+                <p class="text-xs text-slate-400 mt-0.5">7*24 AI tracks vacancy rates, cash flow and delinquencies.
+                  Instant alerts trigger whenever anomalies emerge.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center bg-blue-500/20 mt-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm text-white font-medium">Unified Visualized Management</p>
+                <p class="text-xs text-slate-400 mt-0.5">Centralized data platform. Live dashboards display your
+                  full-portfolio status for complete oversight in one view.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center bg-blue-500/20 mt-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm text-white font-medium">24/7 Market Intelligence</p>
+                <p class="text-xs text-slate-400 mt-0.5">AI automatically pulls competitor metrics, urban-planning
+                  updates and rent trends, delivering summarized insights daily.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center bg-blue-500/20 mt-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm text-white font-medium">Smart Compliance Alerting</p>
+                <p class="text-xs text-slate-400 mt-0.5">AI monitors federal & state-level regulatory updates,
+                  proactively flagging risks and recommending actionable remedies.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center bg-blue-500/20 mt-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm text-white font-medium">One-Click Professional Reporting</p>
+                <p class="text-xs text-slate-400 mt-0.5">Generate institutional-grade investor reports. Auto-calculates
+                  IRR, NOI and Cap Rate and delivers polished outputs.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- SECTION 4 · 6 AI DIGITAL EMPLOYEES -->
+  <section id="ai-workers" class="relative py-28 md:py-40 section-divider overflow-hidden">
+    <div class="max-w-7xl mx-auto px-6 md:px-8">
+      <div class="mb-16 reveal">
+        <div class="flex flex-col items-center gap-4 text-center">
+          <div>
+            <div
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700/50 text-xs text-slate-400 mb-5">
+              Core Products</div>
+            <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Six <span class="text-gradient">Digital
+                Employees</span> </h2>
+            <p class="text-slate-400 mt-3 max-w-lg mx-auto text-base">Capable of autonomous memory, proactive alerts,
+              and
+              round-the-clock automated workflows. Not generic bots — a genuine intelligent digital workforce.</p>
+          </div>
+          <div class="flex items-center gap-2 px-4 py-2 rounded-xl border border-blue-500/20 bg-blue-500/5">
+            <div class="dot-live"></div>
+            <span class="text-xs text-blue-300 font-medium">7*24 Always-On Automation</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2-col asymmetric grid -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+        <!-- Card 1 - wide | Intelligent Interactive Advisor -->
+        <div id="ai-advisor" class="md:col-span-7 ai-card rounded-2xl p-7 reveal">
+          <div class="flex items-start gap-4 mb-5">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+              style="background:linear-gradient(135deg,rgba(37,99,235,0.3),rgba(99,102,241,0.15));border:1px solid rgba(96,165,250,0.25);">
+              <i data-lucide="message-square" class="w-6 h-6 text-blue-400"></i>
+            </div>
+            <div>
+              <h3 class="font-semibold text-white text-lg">Intelligent Interactive Advisor</h3>
+              <p class="text-xs text-blue-400 mt-0.5 font-mono">AI EMPLOYEE #01</p>
+            </div>
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed mb-5">Multi-language rental reception, smart Q&A, proactive
+            information collection. Available 7*24 hours without fatigue, boosting communication efficiency by 5x.</p>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span
+              class="px-2.5 py-1 rounded-lg text-xs bg-blue-500/10 text-blue-300 border border-blue-500/15">Multi-language
+              Conversation</span>
+            <span class="px-2.5 py-1 rounded-lg text-xs bg-blue-500/10 text-blue-300 border border-blue-500/15">Intent
+              Recognition</span>
+            <span class="px-2.5 py-1 rounded-lg text-xs bg-blue-500/10 text-blue-300 border border-blue-500/15">Tenant
+              Memory</span>
+          </div>
+          <!-- mock chat bubble -->
+          <div class="ai-bubble-preview">
+            <div class="ai-bubble-chat">
+              <div class="ai-badge-sm">AI</div>
+              <div class="ai-bubble-text">Hello! I'm RealaxAI advisor, how may I assist you?</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 - narrow | Property Maintenance Coordinator -->
+        <div id="ai-maintenance" class="md:col-span-5 ai-card rounded-2xl p-7 reveal">
+          <div class="flex items-start gap-4 mb-5">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+              style="background:linear-gradient(135deg,rgba(16,185,129,0.25),rgba(5,150,105,0.12));border:1px solid rgba(52,211,153,0.25);">
+              <i data-lucide="wrench" class="w-6 h-6 text-emerald-400"></i>
+            </div>
+            <div>
+              <h3 class="font-semibold text-white text-lg">Property Maintenance Coordinator</h3>
+              <p class="text-xs text-emerald-400 mt-0.5 font-mono">AI EMPLOYEE #02</p>
+            </div>
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed mb-4">Automatic work-order dispatching, smart vendor
+            matching,
+            full-cycle maintenance tracking. From report submission to completion, AI handles the whole workflow.</p>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span
+              class="px-2.5 py-1 rounded-lg text-xs bg-emerald-500/10 text-emerald-300 border border-emerald-500/15">Urgency
+              Assessment</span>
+            <span
+              class="px-2.5 py-1 rounded-lg text-xs bg-emerald-500/10 text-emerald-300 border border-emerald-500/15">Vendor
+              Recommendation</span>
+          </div>
+          <!-- mock workorder status -->
+          <div class="ai-bubble-preview flex items-center gap-2">
+            <div class="status-dot-pulse bg-yellow-400"></div>
+            <span class="text-xs text-slate-300">Workorder #1024 dispatched to contractor</span>
+            <span class="ml-auto text-xs text-slate-500">12 min ago</span>
+          </div>
+        </div>
+
+        <!-- Card 3 | Financial Reporting AI Assistant -->
+        <div id="ai-finance" class="md:col-span-5 ai-card rounded-2xl p-7 reveal">
+          <div class="flex items-start gap-4 mb-5">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+              style="background:linear-gradient(135deg,rgba(245,158,11,0.25),rgba(217,119,6,0.12));border:1px solid rgba(251,191,36,0.25);">
+              <i data-lucide="file-bar-chart" class="w-6 h-6 text-amber-400"></i>
+            </div>
+            <div>
+              <h3 class="font-semibold text-white text-lg">Financial Reporting AI Assistant</h3>
+              <p class="text-xs text-amber-400 mt-0.5 font-mono">AI EMPLOYEE #03</p>
+            </div>
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed mb-4">Auto-generate financial & investor-facing reports.
+            Smart
+            financial Q&A. GAAP-compliant, ready for tiered delivery.</p>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span
+              class="px-2.5 py-1 rounded-lg text-xs bg-amber-500/10 text-amber-300 border border-amber-500/15">Auto-Report
+              Generation</span>
+            <span
+              class="px-2.5 py-1 rounded-lg text-xs bg-amber-500/10 text-amber-300 border border-amber-500/15">Investor
+              Export</span>
+          </div>
+          <!-- mock report done -->
+          <div class="ai-bubble-preview flex items-center gap-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+            <span class="text-xs text-slate-300">Q4 investor report generated & sent</span>
+          </div>
+        </div>
+
+        <!-- Card 4 - wide | Portfolio Monitoring AI -->
+        <div id="ai-monitor" class="md:col-span-7 ai-card rounded-2xl p-7 reveal">
+          <div class="flex items-start gap-4 mb-5">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+              style="background:linear-gradient(135deg,rgba(99,102,241,0.3),rgba(129,140,248,0.15));border:1px solid rgba(165,180,252,0.25);">
+              <i data-lucide="activity" class="w-6 h-6 text-indigo-400"></i>
+            </div>
+            <div>
+              <h3 class="font-semibold text-white text-lg">Portfolio Monitoring AI</h3>
+              <p class="text-xs text-indigo-400 mt-0.5 font-mono">AI EMPLOYEE #04</p>
+            </div>
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed mb-5">Real-time monitoring for vacancy rate, cash flow,
+            delinquency & asset risks. Build a full-picture asset health system.</p>
+          <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="rounded-xl p-3"
+              style="background:rgba(99,102,241,0.08);border:1px solid rgba(165,180,252,0.1);">
+              <div class="font-mono text-lg text-white">96<span class="text-indigo-400 text-sm">%</span></div>
+              <div class="text-xs text-slate-500 mt-0.5">Occupancy Rate</div>
+            </div>
+            <div class="rounded-xl p-3"
+              style="background:rgba(99,102,241,0.08);border:1px solid rgba(165,180,252,0.1);">
+              <div class="font-mono text-lg text-white">$28<span class="text-indigo-400 text-sm">k</span></div>
+              <div class="text-xs text-slate-500 mt-0.5">Monthly Net Income</div>
+            </div>
+          </div>
+          <!-- mini three stat panel -->
+          <div class="mini-stat-row">
+            <div class="mini-stat-item">
+              <div class="mini-stat-val">96%</div>
+              <div class="mini-stat-label">Occupancy</div>
+            </div>
+            <div class="mini-stat-item">
+              <div class="mini-stat-val text-green-400">$28k</div>
+              <div class="mini-stat-label">Net Income</div>
+            </div>
+            <div class="mini-stat-item">
+              <div class="mini-stat-val text-red-400">2</div>
+              <div class="mini-stat-label">Risk Alerts</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 5 | Market Intelligence Analyst -->
+        <div id="ai-market" class="md:col-span-6 ai-card rounded-2xl p-7 reveal">
+          <div class="flex items-start gap-4 mb-5">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+              style="background:linear-gradient(135deg,rgba(20,184,166,0.25),rgba(13,148,136,0.12));border:1px solid rgba(45,212,191,0.25);">
+              <i data-lucide="trending-up" class="w-6 h-6 text-teal-400"></i>
+            </div>
+            <div>
+              <h3 class="font-semibold text-white text-lg">Market Intelligence Analyst</h3>
+              <p class="text-xs text-teal-400 mt-0.5 font-mono">AI EMPLOYEE #05</p>
+            </div>
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed mb-4">Continuously track competitor rent, market trends &
+            urban
+            planning policies. Deliver actionable pricing suggestions.</p>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span
+              class="px-2.5 py-1 rounded-lg text-xs bg-teal-500/10 text-teal-300 border border-teal-500/15">Peer-Rent
+              Benchmark</span>
+            <span class="px-2.5 py-1 rounded-lg text-xs bg-teal-500/10 text-teal-300 border border-teal-500/15">Trend
+              Report</span>
+            <span
+              class="px-2.5 py-1 rounded-lg text-xs bg-teal-500/10 text-teal-300 border border-teal-500/15">Urban-plan
+              Tracking</span>
+          </div>
+          <!-- market compare hint -->
+          <div class="ai-bubble-preview">
+            <span class="text-xs text-slate-400">Avg rent: <span class="text-white">$2,890</span>, Your price <span
+                class="text-green-400">+8% vs market</span></span>
+          </div>
+        </div>
+
+        <!-- Card 6 | Compliance Risk AI Assistant -->
+        <div id="ai-compliance" class="md:col-span-6 ai-card rounded-2xl p-7 reveal">
+          <div class="flex items-start gap-4 mb-5">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+              style="background:linear-gradient(135deg,rgba(239,68,68,0.25),rgba(220,38,38,0.12));border:1px solid rgba(252,165,165,0.25);">
+              <i data-lucide="shield-check" class="w-6 h-6 text-red-400"></i>
+            </div>
+            <div>
+              <h3 class="font-semibold text-white text-lg">Compliance Risk AI Assistant</h3>
+              <p class="text-xs text-red-400 mt-0.5 font-mono">AI EMPLOYEE #06</p>
+            </div>
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed mb-4">Track real-time rental-law updates across US states.
+            Proactive compliance alerts & risk mitigation.</p>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="px-2.5 py-1 rounded-lg text-xs bg-red-500/10 text-red-300 border border-red-500/15">Regulation
+              Tracking</span>
+            <span class="px-2.5 py-1 rounded-lg text-xs bg-red-500/10 text-red-300 border border-red-500/15">Proactive
+              Alerts</span>
+            <span class="px-2.5 py-1 rounded-lg text-xs bg-red-500/10 text-red-300 border border-red-500/15">Actionable
+              Solutions</span>
+          </div>
+          <!-- compliance warning hint -->
+          <div class="ai-bubble-preview flex items-center gap-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            <span class="text-xs text-slate-300">Maryland rental statute update <span class="text-yellow-400">alert
+                delivered</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- SECTION 5 · OFFLINE MANAGED SERVICES -->
+  <section id="managed" class="relative py-28 md:py-40 section-divider overflow-hidden">
+    <div class="max-w-7xl mx-auto px-6 md:px-8">
+      <div class="text-center mb-16 reveal">
+        <div
+          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700/50 text-xs text-slate-400 mb-5">
+          Full-Lifecycle Service</div>
+        <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight mb-4">AI-Powered Platform + <span
+            class="text-gradient">Full-Service Property Management</span> </h2>
+        <p class="text-slate-400 max-w-xl mx-auto text-base">End-to-end closed-loop services covering every phase of
+          real-estate operations, different from pure online SaaS software.</p>
+      </div>
+      <div class="grid md:grid-cols-5 gap-6">
+        <div class="relative text-center reveal">
+          <div class="glass rounded-2xl p-6 card-hover border border-blue-500/15 h-full">
+            <div class="w-12 h-12 mx-auto mb-4 rounded-2xl flex items-center justify-center"
+              style="background:linear-gradient(135deg,rgba(37,99,235,0.25),rgba(99,102,241,0.15)); border:1px solid rgba(96,165,250,0.3);">
+              <i data-lucide="megaphone" class="w-6 h-6 text-blue-400"></i>
+            </div>
+            <div class="w-6 h-6 rounded-full mx-auto mb-3 flex items-center justify-center text-xs font-bold text-white"
+              style="background:rgba(37,99,235,0.5);">1</div>
+            <h4 class="text-white font-semibold text-sm mb-2">Listing Marketing & Tenant Acquisition</h4>
+            <p class="text-xs text-slate-400">AI-generated listing copy, multi-platform sync publishing, intelligent
+              lead
+              screening.</p>
+          </div>
+          <div
+            class="hidden md:block absolute top-1/2 -right-6 z-10 w-6 h-6 rounded-full flex items-center justify-center"
+            style="background:rgba(37,99,235,0.6); ">
+            >
+          </div>
+        </div>
+
+        <div class="relative text-center reveal" style="transition-delay:0.1s">
+          <div class="glass rounded-2xl p-6 card-hover border border-blue-500/15 h-full">
+            <div class="w-12 h-12 mx-auto mb-4 rounded-2xl flex items-center justify-center"
+              style="background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(5,150,105,0.1)); border:1px solid rgba(52,211,153,0.3);">
+              <i data-lucide="shield" class="w-6 h-6 text-emerald-400"></i>
+            </div>
+            <div class="w-6 h-6 rounded-full mx-auto mb-3 flex items-center justify-center text-xs font-bold text-white"
+              style="background:rgba(16,185,129,0.5);">2</div>
+            <h4 class="text-white font-semibold text-sm mb-2">Tenant Risk Screening</h4>
+            <p class="text-xs text-slate-400">Credit scoring, background check & income verification, AI-powered tenant
+              qualification assessment.</p>
+          </div>
+          <div
+            class="hidden md:block absolute top-1/2 -right-6 z-10 w-6 h-6 rounded-full flex items-center justify-center"
+            style="background:rgba(37,99,235,0.6); ">
+            >
+          </div>
+        </div>
+
+        <div class="relative text-center reveal" style="transition-delay:0.2s">
+          <div class="glass rounded-2xl p-6 card-hover border border-blue-500/15 h-full">
+            <div class="w-12 h-12 mx-auto mb-4 rounded-2xl flex items-center justify-center"
+              style="background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(217,119,6,0.1)); border:1px solid rgba(251,191,36,0.3);">
+              <i data-lucide="settings" class="w-6 h-6 text-amber-400"></i>
+            </div>
+            <div class="w-6 h-6 rounded-full mx-auto mb-3 flex items-center justify-center text-xs font-bold text-white"
+              style="background:rgba(245,158,11,0.5);">3</div>
+            <h4 class="text-white font-semibold text-sm mb-2">Day-to-Day Operations Management</h4>
+            <p class="text-xs text-slate-400">Vendor pool management, automated maintenance work-order dispatching,
+              full-cycle tracking & records.</p>
+          </div>
+          <div
+            class="hidden md:block absolute top-1/2 -right-6 z-10 w-6 h-6 rounded-full flex items-center justify-center"
+            style="background:rgba(37,99,235,0.6); ">
+            >
+          </div>
+        </div>
+
+        <div class="relative text-center reveal" style="transition-delay:0.3s">
+          <div class="glass rounded-2xl p-6 card-hover border border-blue-500/15 h-full">
+            <div class="w-12 h-12 mx-auto mb-4 rounded-2xl flex items-center justify-center"
+              style="background:linear-gradient(135deg,rgba(99,102,241,0.25),rgba(129,140,248,0.15)); border:1px solid rgba(165,180,252,0.3);">
+              <i data-lucide="dollar-sign" class="w-6 h-6 text-indigo-400"></i>
+            </div>
+            <div class="w-6 h-6 rounded-full mx-auto mb-3 flex items-center justify-center text-xs font-bold text-white"
+              style="background:rgba(99,102,241,0.5);">4</div>
+            <h4 class="text-white font-semibold text-sm mb-2">Rent Collection Management</h4>
+            <p class="text-xs text-slate-400">Automated overdue collection, delinquency alerts, real-time transparent
+              cash-flow visibility.</p>
+          </div>
+          <div
+            class="hidden md:block absolute top-1/2 -right-6 z-10 w-6 h-6 rounded-full flex items-center justify-center"
+            style="background:rgba(37,99,235,0.6); ">
+            >
+          </div>
+        </div>
+
+        <div class="relative text-center reveal" style="transition-delay:0.4s">
+          <div class="glass rounded-2xl p-6 card-hover border border-blue-500/15 h-full">
+            <div class="w-12 h-12 mx-auto mb-4 rounded-2xl flex items-center justify-center"
+              style="background:linear-gradient(135deg,rgba(239,68,68,0.2),rgba(220,38,38,0.1)); border:1px solid rgba(252,165,165,0.3);">
+              <i data-lucide="clipboard-check" class="w-6 h-6 text-red-400"></i>
+            </div>
+            <div class="w-6 h-6 rounded-full mx-auto mb-3 flex items-center justify-center text-xs font-bold text-white"
+              style="background:rgba(239,68,68,0.5);">5</div>
+            <h4 class="text-white font-semibold text-sm mb-2">Move-Out Inspection & Damage Assessment</h4>
+            <p class="text-xs text-slate-400">AI-image comparison for damage evaluation, transparent deposit settlement,
+              standardized move-out workflow.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom banner -->
+      <div
+        class="mt-16 glass rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 reveal">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+            style="background:rgba(26,86,214,0.2);border:1px solid rgba(59,130,246,0.25);">
+            <i data-lucide="layers" class="w-6 h-6 text-blue-400"></i>
+          </div>
+          <div>
+            <div class="font-semibold text-white text-sm md:text-base">All-in-one hands-off investment property
+              management
+            </div>
+            <div class="text-xs text-slate-500 mt-1">Leave all property matters to us, focus purely on your returns.
+            </div>
+          </div>
+        </div>
+        <button id="managed-consult-btn"
+          class="btn-primary px-6 py-3 rounded-xl text-sm font-semibold text-white flex-shrink-0">Learn About Our
+          Management Solutions</button>
+      </div>
+    </div>
+  </section>
+  <!-- SECTION 6 · BIG DATA & RISK -->
+  <section id="data-intel" class="relative py-28 md:py-40 section-divider overflow-hidden">
+    <div class="max-w-7xl mx-auto px-6 md:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div class="reveal">
+          <div class="glass rounded-2xl p-6" style="box-shadow:0 16px 48px rgba(26,86,214,0.1);min-height:480px;">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <div id="panel-title" class="text-sm font-semibold text-white"></div>
+                <div id="panel-subtitle" class="text-xs text-slate-500 mt-0.5 font-mono"></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="dot-live"></div>
+                <span class="text-xs text-green-400">Demo Data</span>
+              </div>
+            </div>
+            <div id="view-container"></div>
+          </div>
+        </div>
+
+        <!-- Right clickable list -->
+        <div class="space-y-8 reveal">
+          <div>
+            <div
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700/50 text-xs text-slate-400 mb-5">
+              Big-data Intelligence</div>
+            <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Institutional-Grade Big-data Risk &
+              <br /><span class="text-gradient">Analytics Capabilities</span>
+            </h2>
+            <p class="text-slate-400 mt-4 leading-relaxed text-base">Deeply integrate regional property data, government
+              planning data and financial market data to build a professional intelligent analytics system designed for
+              asset management institutions.</p>
+          </div>
+          <div class="space-y-5" id="feature-list">
+            <div class="feature-item flex items-start gap-4 cursor-pointer" data-view="income">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
+                style="background:rgba(26,86,214,0.15);border:1px solid rgba(59,130,246,0.2);">
+                <i data-lucide="bar-chart-2" class="w-5 h-5 text-blue-400"></i>
+              </div>
+              <div>
+                <div class="font-medium text-white text-sm mb-1">Income-Expense & Return Analysis</div>
+                <div class="text-xs text-slate-500 leading-relaxed">Monthly comparison of Income, Expense and NOI to
+                  clearly understand portfolio cash-flow performance.</div>
+              </div>
+            </div>
+            <div class="feature-item flex items-start gap-4 cursor-pointer" data-view="dscr">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
+                style="background:rgba(26,86,214,0.15);border:1px solid rgba(59,130,246,0.2);">
+                <i data-lucide="trending-up" class="w-5 h-5 text-blue-400"></i>
+              </div>
+              <div>
+                <div class="font-medium text-white text-sm mb-1">DSCR Monitoring</div>
+                <div class="text-xs text-slate-500 leading-relaxed">Track monthly DSCR trends, identify debt-service
+                  pressure inflection points and support financing & risk-control decisions.</div>
+              </div>
+            </div>
+            <div class="feature-item flex items-start gap-4 cursor-pointer" data-view="vacancy">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
+                style="background:rgba(26,86,214,0.15);border:1px solid rgba(59,130,246,0.2);">
+                <i data-lucide="alert-triangle" class="w-5 h-5 text-blue-400"></i>
+              </div>
+              <div>
+                <div class="font-medium text-white text-sm mb-1">Daily Vacancy Rate Trend</div>
+                <div class="text-xs text-slate-500 leading-relaxed">Dual-axis tracking of vacant unit count and vacancy
+                  rate to proactively spot rising vacancy risks.</div>
+              </div>
+            </div>
+            <div class="feature-item flex items-start gap-4 cursor-pointer" data-view="competitor">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
+                style="background:rgba(26,86,214,0.15);border:1px solid rgba(59,130,246,0.2);">
+                <i data-lucide="eye" class="w-5 h-5 text-blue-400"></i>
+              </div>
+              <div>
+                <div class="font-medium text-white text-sm mb-1">Competitor Historical Price Trend</div>
+                <div class="text-xs text-slate-500 leading-relaxed">Scatter distribution of comparable listings with
+                  market-average overlay to assist pricing decisions.</div>
+              </div>
+            </div>
+            <div class="feature-item flex items-start gap-4 cursor-pointer" data-view="competitorTrend">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
+                style="background:rgba(26,86,214,0.15);border:1px solid rgba(59,130,246,0.2);">
+                <i data-lucide="line-chart" class="w-5 h-5 text-blue-400"></i>
+              </div>
+              <div>
+                <div class="font-medium text-white text-sm mb-1">Competitor Rent-Sale Trend</div>
+                <div class="text-xs text-slate-500 leading-relaxed">Smoothed area chart for observing long-term
+                  rent-sale price movements of comparable assets.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <script>
+    let chartIns = null;
+    const viewDataMap = {
+      income: {
+        title: "Income, Expense and Return",
+        subtitle: "Time Range: Year",
+        html: `<div id="chart-income" style="width:100%;height:340px;"></div>`,
+        init: function () {
+          if (chartIns) chartIns.dispose();
+          chartIns = echarts.init(document.getElementById('chart-income'));
+          const xData1 = ['2026-01', '2026-02', '2026-03', '2026-04', '2026-05', '2026-06', '2026-07', '2026-08'];
+          const opt1 = {
+            textStyle: { color: '#cbd5e1' },
+            tooltip: {
+              trigger: 'axis',
+              textStyle: { color: '#ffffff' },
+              backgroundColor: 'rgba(7,22,48,0.92)',
+              borderColor: 'rgba(59,130,246,0.3)'
+            },
+            legend: {
+              top: 10,
+              data: ['Income', 'Expense', 'NOI'],
+              textStyle: { color: '#e2e8f0' }
+            },
+            grid: { left: '12%', right: '12%', bottom: '18%', top: '12%', containLabel: true },
+            xAxis: {
+              type: 'category',
+              data: xData1,
+              axisLabel: { rotate: 45, color: '#94a3b8' },
+              axisLine: { lineStyle: { color: 'rgba(59,130,246,0.12)' } }
+            },
+            yAxis: {
+              type: 'value',
+              name: '$',
+              min: -100000,
+              max: 500000,
+              nameTextStyle: { color: '#94a3b8' },
+              axisLabel: { color: '#94a3b8' },
+              splitLine: { lineStyle: { color: 'rgba(59,130,246,0.08)' } }
+            },
+            series: [
+              { name: 'Income', type: 'bar', color: '#38a829', data: [440000, 470000, 350000, 285000, 310000, 338000, 412000, 395000] },
+              { name: 'Expense', type: 'bar', color: '#007bff', data: [425000, 458000, 395000, 260000, 282000, 298000, 305000, 360000] },
+              { name: 'NOI', type: 'bar', color: '#ff8822', data: [18000, 14000, -42000, 22000, 20000, 32000, 105000, 28000] }
+            ]
+          };
+          chartIns.setOption(opt1);
+        }
+      },
+
+      dscr: {
+        title: "DSCR",
+        subtitle: "Time Range: Year",
+        html: `<div id="chart-dscr" style="width:100%;height:340px;"></div>`,
+        init: function () {
+          if (chartIns) chartIns.dispose();
+          chartIns = echarts.init(document.getElementById('chart-dscr'));
+          const xData2 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          const dscrData = [0.78, 0.74, 0.86, 0.31, 0.26, 0.34, 0.68, 1.41, 0, 0, 0, 0];
+          const opt2 = {
+            textStyle: { color: '#cbd5e1' },
+            tooltip: {
+              trigger: 'item',
+              textStyle: { color: '#ffffff' },
+              backgroundColor: 'rgba(7,22,48,0.92)',
+              borderColor: 'rgba(59,130,246,0.3)'
+            },
+            legend: {
+              top: 10,
+              data: ['DSCR'],
+              textStyle: { color: '#e2e8f0' }
+            },
+            grid: { left: '12%', right: '12%', bottom: '18%', top: '12%', containLabel: true },
+            xAxis: {
+              type: 'category',
+              data: xData2,
+              axisLabel: { color: '#94a3b8' },
+              axisLine: { lineStyle: { color: 'rgba(59,130,246,0.12)' } }
+            },
+            yAxis: {
+              type: 'value',
+              min: 0,
+              max: 1.5,
+              nameTextStyle: { color: '#94a3b8' },
+              axisLabel: { color: '#94a3b8' },
+              splitLine: { lineStyle: { color: 'rgba(59,130,246,0.08)' } }
+            },
+            series: [
+              {
+                name: 'DSCR',
+                type: 'line',
+                symbol: 'circle',
+                symbolSize: 10,
+                itemStyle: { color: '#e53935' },
+                lineStyle: { color: '#e53935', width: 2 },
+                data: dscrData
+              }
+            ]
+          };
+          chartIns.setOption(opt2);
+        }
+      },
+
+      vacancy: {
+        title: "Vacancy Rate Daily Trend",
+        subtitle: "Time Range: Month",
+        html: `<div id="chart-vacancy" style="width:100%;height:340px;"></div>`,
+        init: function () {
+          if (chartIns) chartIns.dispose();
+          chartIns = echarts.init(document.getElementById('chart-vacancy'));
+          const opt3 = {
+            textStyle: { color: '#cbd5e1' },
+            tooltip: {
+              trigger: 'axis',
+              textStyle: { color: '#ffffff' },
+              backgroundColor: 'rgba(7,22,48,0.92)',
+              borderColor: 'rgba(59,130,246,0.3)'
+            },
+            legend: {
+              top: 8,
+              data: ['Vacant Units', 'Vacancy Rate'],
+              textStyle: { color: '#e2e8f0' }
+            },
+            grid: { left: '12%', right: '12%', bottom: '18%', top: '12%', containLabel: true },
+            xAxis: {
+              type: 'category',
+              data: ['2026-07-04', '2026-07-05', '2026-07-06', '2026-07-07', '2026-07-08', '2026-07-09', '2026-07-10', '2026-07-11', '2026-07-12', '2026-07-13', '2026-07-14', '2026-07-15', '2026-07-16', '2026-07-17', '2026-07-18', '2026-07-19', '2026-07-20', '2026-07-21', '2026-07-22', '2026-07-23', '2026-07-24', '2026-07-25', '2026-07-26', '2026-07-27', '2026-07-28', '2026-07-29', '2026-07-30', '2026-07-31', '2026-08-01', '2026-08-02', '2026-08-03', '2026-08-04'],
+              axisLabel: { rotate: 40, color: '#94a3b8' },
+              axisLine: { lineStyle: { color: 'rgba(59,130,246,0.12)' } }
+            },
+            yAxis: [
+              {
+                type: 'value',
+                name: 'Vacant Units',
+                min: 0,
+                max: 15,
+                nameTextStyle: { color: '#94a3b8' },
+                axisLabel: { color: '#94a3b8' },
+                splitLine: { lineStyle: { color: 'rgba(59,130,246,0.08)' } }
+              },
+              {
+                type: 'value',
+                name: 'Vacancy Rate (%)',
+                min: 0,
+                max: 10,
+                position: 'right',
+                nameTextStyle: { color: '#94a3b8' },
+                axisLabel: { color: '#94a3b8' },
+                splitLine: { show: false }
+              }
+            ],
+            graphic: [
+              { type: 'line', left: '10%', right: '10%', y: 220, shape: { x1: 0, y1: 0, x2: 1, y2: 0 }, style: { stroke: '#ff9800', lineWidth: 2, lineDash: [8, 6] } }
+            ],
+            series: [
+              {
+                name: 'Vacant Units',
+                type: 'bar',
+                color: '#639cf5',
+                data: [12, 11, 13, 10, 9, 8.2, 7.8, 7, 6, 6.8, 6, 5, 4.8, 4, 3.8, 5, 6, 4.5, 3.5, 3, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 11, 10]
+              },
+              {
+                name: 'Vacancy Rate',
+                type: 'line',
+                yAxisIndex: 1,
+                color: '#1a3b99',
+                symbol: 'circle',
+                symbolSize: 6,
+                data: [7.4, 6.8, 7.8, 6, 5.2, 4.8, 4.6, 4, 3.4, 3.8, 3.2, 2.9, 2.6, 2.3, 2.1, 2.8, 3.3, 2.7, 2.2, 2.5, 2.8, 3.4, 4, 4.7, 5.3, 6, 6.6, 7.1, 7.6, 7.9, 7.4, 6.8]
+              }
+            ]
+          };
+          chartIns.setOption(opt3);
+        }
+      },
+
+      competitor: {
+        title: "Competitor Historical Price Trend",
+        subtitle: "2026/07/01 to 2026/07/31",
+        html: `<div id="chart-competitor" style="width:100%;height:300px;"></div>`,
+        init: function () {
+          if (chartIns) chartIns.dispose();
+          chartIns = echarts.init(document.getElementById('chart-competitor'));
+          const compData = [];
+          const ourData = [];
+          for (let i = 0; i < 31; i++) {
+            const baseX = i;
+            const compVal = Number((1600 + Math.random() * 1400).toFixed(2));
+            const ourVal = Number((1700 + Math.random() * 1200).toFixed(2));
+            compData.push([baseX, compVal]);
+            ourData.push([baseX, ourVal]);
+          }
+          const opt4 = {
+            textStyle: { color: '#cbd5e1' },
+            tooltip: {
+              trigger: 'item',
+              textStyle: { color: '#ffffff' },
+              backgroundColor: 'rgba(7,22,48,0.92)',
+              borderColor: 'rgba(59,130,246,0.3)',
+              formatter: function (params) {
+                return params.seriesName + '<br/>Price: $' + Number(params.data[1]).toFixed(2);
+              }
+            },
+            legend: {
+              top: 10,
+              data: ['Competitor Listing', 'Our Listing', 'Market Average Line'],
+              textStyle: { color: '#e2e8f0' }
+            },
+            grid: { left: '12%', right: '12%', bottom: '18%', top: '12%', containLabel: true },
+            xAxis: {
+              type: 'category',
+              data: ['2026-07-01', '2026-07-02', '2026-07-03', '2026-07-04', '2026-07-05', '2026-07-06', '2026-07-07', '2026-07-08', '2026-07-09', '2026-07-10', '2026-07-11', '2026-07-12', '2026-07-13', '2026-07-14', '2026-07-15', '2026-07-16', '2026-07-17', '2026-07-18', '2026-07-19', '2026-07-20', '2026-07-21', '2026-07-22', '2026-07-23', '2026-07-24', '2026-07-25', '2026-07-26', '2026-07-27', '2026-07-28', '2026-07-29', '2026-07-30', '2026-07-31'],
+              axisLabel: { rotate: 45, color: '#94a3b8' },
+              axisLine: { lineStyle: { color: 'rgba(59,130,246,0.12)' } }
+            },
+            yAxis: {
+              type: 'value',
+              min: 1500,
+              max: 3300,
+              axisLabel: { formatter: '{value}', color: '#94a3b8' },
+              splitLine: { lineStyle: { color: 'rgba(59,130,246,0.08)' } }
+            },
+            series: [
+              {
+                name: 'Competitor Listing',
+                type: 'scatter',
+                color: '#4477dd',
+                symbolSize: 8,
+                data: compData
+              },
+              {
+                name: 'Our Listing',
+                type: 'scatter',
+                color: '#ff7766',
+                symbolSize: 8,
+                data: ourData
+              },
+              {
+                name: 'Market Average Line',
+                type: 'line',
+                color: '#777777',
+                symbol: 'none',
+                data: Array(31).fill(2300)
+              }
+            ]
+          };
+          chartIns.setOption(opt4);
+        }
+      },
+
+      competitorTrend: {
+        title: "Competitor Rent & Sale Trend",
+        subtitle: "Long-term Market Observation",
+        html: `<div id="chart-competitor-trend" style="width:100%;height:340px;"></div>`,
+        init: function () {
+          if (chartIns) chartIns.dispose();
+          chartIns = echarts.init(document.getElementById('chart-competitor-trend'));
+          const xData5 = [
+            '2026-01-25', '2026-01-28', '2026-02-02', '2026-02-08', '2026-02-15', '2026-02-22', '2026-03-01',
+            '2026-03-08', '2026-03-16', '2026-03-24', '2026-04-02', '2026-04-10', '2026-04-18', '2026-04-26',
+            '2026-05-05', '2026-05-13', '2026-05-21', '2026-05-29', '2026-06-08', '2026-06-17', '2026-06-25', '2026-07-05'
+          ];
+          const trendData = [
+            1.2, 1.8, 2.4, 3.0, 2.5, 3.1, 2.7,
+            3.4, 4.0, 3.6, 4.2, 3.8, 4.3, 3.9,
+            4.4, 4.0, 4.5, 5.0, 4.6, 5.1, 4.7, 5.3
+          ];
+          const opt5 = {
+            textStyle: { color: '#cbd5e1' },
+            tooltip: {
+              trigger: 'axis',
+              textStyle: { color: '#ffffff' },
+              backgroundColor: 'rgba(7,22,48,0.92)',
+              borderColor: 'rgba(59,130,246,0.3)',
+              formatter: function (params) {
+                let res = params[0].axisValue + '<br/>';
+                params.forEach(p => {
+                  res += p.seriesName + ': ' + Number(p.value).toFixed(2) + '<br/>';
+                })
+                return res;
+              }
+            },
+            grid: { left: '12%', right: '12%', bottom: '22%', top: '12%', containLabel: true },
+            xAxis: {
+              type: 'category',
+              data: xData5,
+              axisLabel: { rotate: 45, color: '#94a3b8' },
+              axisLine: { lineStyle: { color: 'rgba(59,130,246,0.12)' } }
+            },
+            yAxis: {
+              type: 'value',
+              min: 0,
+              max: 7,
+              splitLine: { lineStyle: { type: 'dashed', color: 'rgba(59,130,246,0.08)' } },
+              axisLabel: { formatter: '{value}', color: '#94a3b8' }
+            },
+            series: [
+              {
+                name: 'Trend',
+                type: 'line',
+                smooth: true,
+                symbol: 'circle',
+                symbolSize: 6,
+                itemStyle: { color: '#ff4444' },
+                lineStyle: { color: '#ff4444', width: 2 },
+                areaStyle: {
+                  color: {
+                    type: 'linear',
+                    x: 0, y: 0, x2: 0, y2: 1,
+                    colorStops: [
+                      { offset: 0, color: 'rgba(255,120,120,0.6)' },
+                      { offset: 1, color: 'rgba(255,180,180,0.15)' }
+                    ]
+                  }
+                },
+                data: trendData
+              }
+            ]
+          };
+          chartIns.setOption(opt5);
+        }
+      }
+    };
+    function switchView(viewKey) {
+      const cfg = viewDataMap[viewKey];
+      if (!cfg) return;
+      document.getElementById('panel-title').innerText = cfg.title;
+      document.getElementById('panel-subtitle').innerText = cfg.subtitle;
+      const container = document.getElementById('view-container');
+      container.innerHTML = cfg.html;
+      document.querySelectorAll('.feature-item').forEach(el => el.classList.remove('active'));
+      const activeItem = document.querySelector(`.feature-item[data-view="${viewKey}"]`);
+      if (activeItem) activeItem.classList.add('active');
+      setTimeout(() => cfg.init(), 10);
+    }
+
+    document.querySelectorAll('.feature-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const v = item.dataset.view;
+        switchView(v);
+      })
+    })
+
+    document.addEventListener('DOMContentLoaded', () => {
+      switchView('income');
+      window.addEventListener('resize', () => {
+        if (chartIns) chartIns.resize();
+      })
+    })
+  </script>
+  <!--SECTION 7 · GLOBAL CITY PRESENCE -->
+  <section id="global" class="relative py-28 md:py-40 section-divider overflow-hidden">
+    <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-12">
+      <div class="text-center mb-16 reveal">
+        <span
+          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700/50 text-xs text-slate-400 mb-5">Global
+          Footprint</span>
+        <h2 class="text-3xl md:text-4xl font-outfit font-700 text-white mt-4 mb-4">
+          Cloud AI + <span class="text-gradient">Local Teams</span> Dual-Track Service
+        </h2>
+        <p class="text-slate-400 max-w-2xl mx-auto">Deeply rooted in key US cities, on-site local teams guarantee
+          on-ground execution while cloud-based AI enables seamless global asset management.</p>
+      </div>
+      <!-- Map area US Business Coverage -->
+      <div class="relative">
+        <div class="glass rounded-3xl p-8 border border-blue-500/15 relative overflow-hidden mb-8"
+          style="min-height:280px;">
+          <img src="https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=1200&h=400&fit=crop" alt="US Map"
+            class="absolute inset-0 w-full h-full object-cover opacity-40 rounded-3xl" />
+
+          <!-- Center text area -->
+          <div class="relative z-10 flex items-center justify-center h-full">
+            <div class="text-center px-4">
+              <p class="text-slate-400 text-sm mb-2">US Core Business Footprint</p>
+              <p class="text-white font-outfit font-700 text-2xl">4 Core Cities · Nationwide Reach</p>
+              <p class="text-slate-400 text-sm mt-2">24/7 Cloud AI System · On-Site Local Response</p>
+            </div>
+          </div>
+          <div class="absolute z-10" style="top:78%; left:66%;">
+            <div class="w-3 h-3 rounded-full bg-blue-400 animate-pulse"></div>
+            <div class="absolute -top-4 left-4 tag-badge whitespace-nowrap text-xs">Baltimore</div>
+          </div>
+          <div class="absolute z-10" style="top:64%; left:67%;">
+            <div class="w-3 h-3 rounded-full bg-cyan-400 animate-pulse" style="animation-delay:0.5s"></div>
+            <div class="absolute -top-4 left-4 tag-badge whitespace-nowrap text-xs">New York</div>
+          </div>
+          <div class="absolute z-10" style="top:57%; left:39%;">
+            <div class="w-3 h-3 rounded-full bg-indigo-400 animate-pulse" style="animation-delay:1s"></div>
+            <div class="absolute -top-4 left-4 tag-badge whitespace-nowrap text-xs">Chicago</div>
+          </div>
+          <div class="absolute z-10" style="top:92%; left:5%;">
+            <div class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" style="animation-delay:1.5s"></div>
+            <div class="absolute -top-4 left-4 tag-badge whitespace-nowrap text-xs">Houston</div>
+          </div>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-12">
+        <div class="city-card rounded-2xl p-5 reveal">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-500/20 border border-blue-500/30">
+              <i data-lucide="map-pin" class="w-5 h-5 text-blue-400"></i>
+            </div>
+            <div>
+              <h4 class="text-white font-semibold">Baltimore</h4>
+            </div>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">Primary operation hub, strong local team covering
+            mid-affordable residential assets across Maryland.</p>
+          <div class="flex items-center gap-2 mb-4">
+            <div class="h-1 flex-1 rounded-full" style="background:linear-gradient(90deg,#2563eb,#60a5fa)"></div>
+            <span class="text-xs text-blue-400 font-medium">Primary Market</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-2xl text-white font-medium">1,840</span>
+            <span class="text-xs text-slate-500">Managed Units</span>
+          </div>
+        </div>
+        <!-- New York -->
+        <div class="city-card rounded-2xl p-5 reveal" style="transition-delay:0.1s">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-cyan-500/20 border border-cyan-500/30">
+              <i data-lucide="map-pin" class="w-5 h-5 text-cyan-400"></i>
+            </div>
+            <div>
+              <h4 class="text-white font-semibold">New York</h4>
+            </div>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">Financial core market, serving high-net-worth
+            investors and institutional portfolio management.</p>
+          <div class="flex items-center gap-2 mb-4">
+            <div class="h-1 flex-1 rounded-full" style="background:linear-gradient(90deg,#0891b2,#22d3ee)"></div>
+            <span class="text-xs text-cyan-400 font-medium">Premium Market</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-2xl text-white font-medium">730</span>
+            <span class="text-xs text-slate-500">Managed Units</span>
+          </div>
+        </div>
+        <div class="city-card rounded-2xl p-5 reveal" style="transition-delay:0.2s">
+          <div class="flex items-center gap-3 mb-3">
+            <div
+              class="w-10 h-10 rounded-xl flex items-center justify-center bg-indigo-500/20 border border-indigo-500/30">
+              <i data-lucide="map-pin" class="w-5 h-5 text-indigo-400"></i>
+            </div>
+            <div>
+              <h4 class="text-white font-semibold">Chicago</h4>
+            </div>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">Midwest strategic hub for multi-family residential and
+            student housing property operations.</p>
+          <div class="flex items-center gap-2 mb-4">
+            <div class="h-1 flex-1 rounded-full" style="background:linear-gradient(90deg,#6366f1,#818cf8)"></div>
+            <span class="text-xs text-indigo-400 font-medium">Expansion Market</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-2xl text-white font-medium">820</span>
+            <span class="text-xs text-slate-500">Managed Units</span>
+          </div>
+        </div>
+        <div class="city-card rounded-2xl p-5 reveal" style="transition-delay:0.3s">
+          <div class="flex items-center gap-3 mb-3">
+            <div
+              class="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-500/20 border border-emerald-500/30">
+              <i data-lucide="map-pin" class="w-5 h-5 text-emerald-400"></i>
+            </div>
+            <div>
+              <h4 class="text-white font-semibold">Houston</h4>
+            </div>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">Texas energy-economy hub, supporting industrial-park
+            residential and commercial real-estate portfolios.</p>
+          <div class="flex items-center gap-2 mb-4">
+            <div class="h-1 flex-1 rounded-full" style="background:linear-gradient(90deg,#059669,#34d399)"></div>
+            <span class="text-xs text-emerald-400 font-medium">Emerging Market</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-2xl text-white font-medium">410</span>
+            <span class="text-xs text-slate-500">Managed Units</span>
+          </div>
+        </div>
+      </div>
+      <div class="glass rounded-2xl p-6 md:p-10 reveal">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+          <div class="md:col-span-2">
+            <h3 class="text-xl md:text-2xl font-bold text-white mb-3">Cloud AI + Local Teams · Dual-Track Global Service
+              Model</h3>
+            <p class="text-slate-400 text-sm leading-relaxed">Wherever your properties are located, Realax AI delivers
+              remote intelligent monitoring via cloud systems and coordinates on-site local specialists to achieve
+              unified global asset management.</p>
+          </div>
+          <div class="flex flex-col gap-3">
+            <div class="flex items-center gap-3 text-sm text-slate-300">
+              <i data-lucide="cloud" class="w-4 h-4 text-blue-400 flex-shrink-0"></i>
+              Real-time cloud AI monitoring, zero-time-zone lag
+            </div>
+            <div class="flex items-center gap-3 text-sm text-slate-300">
+              <i data-lucide="users" class="w-4 h-4 text-blue-400 flex-shrink-0"></i>
+              Local on-ground teams, response within &lt;4h
+            </div>
+            <div class="flex items-center gap-3 text-sm text-slate-300">
+              <i data-lucide="globe" class="w-4 h-4 text-blue-400 flex-shrink-0"></i>
+              Unified multi-lingual platform for global investors
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
+  <!--SECTION 8 · COMPARISON + SECURITY-->
+  <section class="relative py-28 md:py-40 section-divider overflow-hidden" id="compare">
+    <div class="relative z-10 max-w-7xl mx-auto px-6 md:px-8">
+      <div class="text-center mb-16 reveal">
+        <div
+          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700/50 text-xs text-slate-400 mb-5">
+          Key Differentiators
+        </div>
+        <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight mb-4">
+          Why Choose <span class="text-gradient">Realax AI</span>?
+        </h2>
+        <p class="text-slate-400 max-w-2xl mx-auto text-base">Compared with established industry solutions, we deliver
+          deeper AI-powered automation and flexible local deployment options</p>
+      </div>
+
+      <div class="grid lg:grid-cols-[3fr_2fr] gap-12">
+        <div class="reveal">
+          <div class="glass rounded-2xl overflow-hidden border border-blue-500/20 hidden md:block">
+            <div class="px-6 py-4 border-b border-white/5">
+              <p class="text-sm font-semibold text-white">How Realax Compares</p>
+            </div>
+            <div class="overflow-x-auto [-webkit-overflow-scrolling:touch]">
+              <table class="w-full min-w-[640px] text-xs">
+                <thead>
+                  <tr class="border-b border-white/5">
+                    <th class="text-left px-3 py-2.5 text-[11px] text-slate-400 font-medium">Capability</th>
+                    <th class="px-2 py-2.5 text-center min-w-[70px]">
+                      <span class="text-[11px] font-semibold text-emerald-400">Realax</span>
+                    </th>
+                    <th class="px-2 py-2.5 text-center min-w-[80px]">
+                      <span class="text-[11px] text-slate-500">Yardi Voyager</span>
+                    </th>
+                    <th class="px-2 py-2.5 text-center min-w-[75px]">
+                      <span class="text-[11px] text-slate-500">AppFolio</span>
+                    </th>
+                    <th class="px-2 py-2.5 text-center min-w-[90px]">
+                      <span class="text-[11px] text-slate-500">Typical PM Tools</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                  <tr class="hover:bg-white/[0.02] transition-colors">
+                    <td class="px-3 py-2.5 text-[11px] text-slate-300">Property Operations Automation</td>
+                    <td class="px-2 py-2.5 text-center text-emerald-400 text-[11px]">Yes-Full</td>
+                    <td class="px-2 py-2.5 text-center text-amber-400 text-[11px]">Partial</td>
+                    <td class="px-2 py-2.5 text-center text-amber-400 text-[11px]">Basic</td>
+                    <td class="px-2 py-2.5 text-center text-slate-500 text-[11px]">Manual</td>
+                  </tr>
+                  <tr class="hover:bg-white/[0.02] transition-colors">
+                    <td class="px-3 py-2.5 text-[11px] text-slate-300">Investment & Asset Reporting</td>
+                    <td class="px-2 py-2.5 text-center text-emerald-400 text-[11px]">Yes-Auto</td>
+                    <td class="px-2 py-2.5 text-center text-amber-400 text-[11px]">Manual only</td>
+                    <td class="px-2 py-2.5 text-center text-amber-400 text-[11px]">Limited</td>
+                    <td class="px-2 py-2.5 text-center text-slate-500 text-[11px]">None</td>
+                  </tr>
+                  <tr class="hover:bg-white/[0.02] transition-colors">
+                    <td class="px-3 py-2.5 text-[11px] text-slate-300">AI Agent Workflows</td>
+                    <td class="px-2 py-2.5 text-center text-emerald-400 text-[11px]">Yes-Built-in</td>
+                    <td class="px-2 py-2.5 text-center text-slate-500 text-[11px]">None</td>
+                    <td class="px-2 py-2.5 text-center text-amber-400 text-[11px]">Chatbot only</td>
+                    <td class="px-2 py-2.5 text-center text-slate-500 text-[11px]">None</td>
+                  </tr>
+                  <tr class="hover:bg-white/[0.02] transition-colors">
+                    <td class="px-3 py-2.5 text-[11px] text-slate-300">Market & Competitor Monitoring</td>
+                    <td class="px-2 py-2.5 text-center text-emerald-400 text-[11px]">Yes-Live</td>
+                    <td class="px-2 py-2.5 text-center text-slate-500 text-[11px]">None</td>
+                    <td class="px-2 py-2.5 text-center text-slate-500 text-[11px]">None</td>
+                    <td class="px-2 py-2.5 text-center text-slate-500 text-[11px]">None</td>
+                  </tr>
+                  <tr class="hover:bg-white/[0.02] transition-colors">
+                    <td class="px-3 py-2.5 text-[11px] text-slate-300">Regulatory Change Alerts</td>
+                    <td class="px-2 py-2.5 text-center text-emerald-400 text-[11px]">Yes-Auto</td>
+                    <td class="px-2 py-2.5 text-center text-slate-500 text-[11px]">None</td>
+                    <td class="px-2 py-2.5 text-center text-slate-500 text-[11px]">None</td>
+                    <td class="px-2 py-2.5 text-center text-slate-500 text-[11px]">None</td>
+                  </tr>
+                  <tr class="hover:bg-white/[0.02] transition-colors">
+                    <td class="px-3 py-2.5 text-[11px] text-slate-300">Private / Local Deployment</td>
+                    <td class="px-2 py-2.5 text-center text-emerald-400 text-[11px]">Yes-Available</td>
+                    <td class="px-2 py-2.5 text-center text-amber-400 text-[11px]">Cloud only</td>
+                    <td class="px-2 py-2.5 text-center text-amber-400 text-[11px]">Cloud only</td>
+                    <td class="px-2 py-2.5 text-center text-slate-500 text-[11px]">N/A</td>
+                  </tr>
+                  <tr class="hover:bg-white/[0.02] transition-colors">
+                    <td class="px-3 py-2.5 text-[11px] text-slate-300">Context & Operational Memory</td>
+                    <td class="px-2 py-2.5 text-center text-emerald-400 text-[11px]">Yes-Core</td>
+                    <td class="px-2 py-2.5 text-center text-slate-500 text-[11px]">None</td>
+                    <td class="px-2 py-2.5 text-center text-slate-500 text-[11px]">None</td>
+                    <td class="px-2 py-2.5 text-center text-slate-500 text-[11px]">None</td>
+                  </tr>
+                  <tr class="hover:bg-white/[0.02] transition-colors">
+                    <td class="px-3 py-2.5 text-[11px] text-slate-300">No Data Migration Required</td>
+                    <td class="px-2 py-2.5 text-center text-emerald-400 text-[11px]">Yes</td>
+                    <td class="px-2 py-2.5 text-center text-slate-500 text-[11px]">Required</td>
+                    <td class="px-2 py-2.5 text-center text-slate-500 text-[11px]">Required</td>
+                    <td class="px-2 py-2.5 text-center text-slate-500 text-[11px]">Required</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="md:hidden space-y-4">
+            <p class="text-sm font-semibold text-white mb-2">How Realax Compares</p>
+
+            <!-- Card 1 -->
+            <div class="glass rounded-xl p-4 border border-blue-500/20">
+              <div class="text-white text-sm font-medium mb-3">Property Operations Automation</div>
+              <div class="grid grid-cols-2 gap-3 text-xs">
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-emerald-400 font-medium">Realax</div>
+                  <div class="text-slate-300 mt-1">Yes-Full</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">Yardi Voyager</div>
+                  <div class="text-amber-400 mt-1">Partial</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">AppFolio</div>
+                  <div class="text-amber-400 mt-1">Basic</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">Typical PM Tools</div>
+                  <div class="text-slate-500 mt-1">Manual</div>
+                </div>
+              </div>
+            </div>
+            <!-- Card 2 -->
+            <div class="glass rounded-xl p-4 border border-blue-500/20">
+              <div class="text-white text-sm font-medium mb-3">Investment & Asset Reporting</div>
+              <div class="grid grid-cols-2 gap-3 text-xs">
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-emerald-400 font-medium">Realax</div>
+                  <div class="text-slate-300 mt-1">Yes-Auto</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">Yardi Voyager</div>
+                  <div class="text-amber-400 mt-1">Manual only</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">AppFolio</div>
+                  <div class="text-amber-400 mt-1">Limited</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">Typical PM Tools</div>
+                  <div class="text-slate-500 mt-1">None</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card3 -->
+            <div class="glass rounded-xl p-4 border border-blue-500/20">
+              <div class="text-white text-sm font-medium mb-3">AI Agent Workflows</div>
+              <div class="grid grid-cols-2 gap-3 text-xs">
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-emerald-400 font-medium">Realax</div>
+                  <div class="text-slate-300 mt-1">Yes-Built-in</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">Yardi Voyager</div>
+                  <div class="text-slate-500 mt-1">None</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">AppFolio</div>
+                  <div class="text-amber-400 mt-1">Chatbot only</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">Typical PM Tools</div>
+                  <div class="text-slate-500 mt-1">None</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card4 -->
+            <div class="glass rounded-xl p-4 border border-blue-500/20">
+              <div class="text-white text-sm font-medium mb-3">Market & Competitor Monitoring</div>
+              <div class="grid grid-cols-2 gap-3 text-xs">
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-emerald-400 font-medium">Realax</div>
+                  <div class="text-slate-300 mt-1">Yes-Live</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">Yardi Voyager</div>
+                  <div class="text-slate-500 mt-1">None</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">AppFolio</div>
+                  <div class="text-slate-500 mt-1">None</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">Typical PM Tools</div>
+                  <div class="text-slate-500 mt-1">None</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card5 -->
+            <div class="glass rounded-xl p-4 border border-blue-500/20">
+              <div class="text-white text-sm font-medium mb-3">Regulatory Change Alerts</div>
+              <div class="grid grid-cols-2 gap-3 text-xs">
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-emerald-400 font-medium">Realax</div>
+                  <div class="text-slate-300 mt-1">Yes-Auto</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">Yardi Voyager</div>
+                  <div class="text-slate-500 mt-1">None</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">AppFolio</div>
+                  <div class="text-slate-500 mt-1">None</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">Typical PM Tools</div>
+                  <div class="text-slate-500 mt-1">None</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card6 -->
+            <div class="glass rounded-xl p-4 border border-blue-500/20">
+              <div class="text-white text-sm font-medium mb-3">Private / Local Deployment</div>
+              <div class="grid grid-cols-2 gap-3 text-xs">
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-emerald-400 font-medium">Realax</div>
+                  <div class="text-slate-300 mt-1">Yes-Available</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">Yardi Voyager</div>
+                  <div class="text-amber-400 mt-1">Cloud only</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">AppFolio</div>
+                  <div class="text-amber-400 mt-1">Cloud only</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">Typical PM Tools</div>
+                  <div class="text-slate-500 mt-1">N/A</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card7 -->
+            <div class="glass rounded-xl p-4 border border-blue-500/20">
+              <div class="text-white text-sm font-medium mb-3">Context & Operational Memory</div>
+              <div class="grid grid-cols-2 gap-3 text-xs">
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-emerald-400 font-medium">Realax</div>
+                  <div class="text-slate-300 mt-1">Yes-Core</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">Yardi Voyager</div>
+                  <div class="text-slate-500 mt-1">None</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">AppFolio</div>
+                  <div class="text-slate-500 mt-1">None</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">Typical PM Tools</div>
+                  <div class="text-slate-500 mt-1">None</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card8 -->
+            <div class="glass rounded-xl p-4 border border-blue-500/20">
+              <div class="text-white text-sm font-medium mb-3">No Data Migration Required</div>
+              <div class="grid grid-cols-2 gap-3 text-xs">
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-emerald-400 font-medium">Realax</div>
+                  <div class="text-slate-300 mt-1">Yes</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">Yardi Voyager</div>
+                  <div class="text-slate-500 mt-1">Required</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">AppFolio</div>
+                  <div class="text-slate-500 mt-1">Required</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-2">
+                  <div class="text-slate-400 font-medium">Typical PM Tools</div>
+                  <div class="text-slate-500 mt-1">Required</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="reveal" style="transition-delay:0.15s">
+          <div class="glass rounded-2xl p-6 border border-blue-500/20 h-full">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center"
+                style="background:rgba(26,86,214,0.22);border:1px solid rgba(59,130,246,0.25);">
+                <i data-lucide="lock" class="w-5 h-5 text-blue-400"></i>
+              </div>
+              <div>
+                <h3 class="text-white font-semibold">Enterprise-Grade Data Security</h3>
+                <p class="text-xs text-slate-400">Your data stays in your control</p>
+              </div>
+            </div>
+
+            <div class="space-y-4">
+              <div class="glass-light rounded-xl p-4 flex items-start gap-3">
+                <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center"
+                  style="background:rgba(26,86,214,0.22);">
+                  <i data-lucide="server" class="w-4 h-4 text-blue-400"></i>
+                </div>
+                <div>
+                  <p class="text-sm text-white font-medium">Private Deployment</p>
+                  <p class="text-xs text-slate-400 mt-0.5">Deploy on your own infrastructure, no third-party data
+                    storage</p>
+                </div>
+              </div>
+              <div class="glass-light rounded-xl p-4 flex items-start gap-3">
+                <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center"
+                  style="background:rgba(26,86,214,0.22);">
+                  <i data-lucide="key" class="w-4 h-4 text-blue-400"></i>
+                </div>
+                <div>
+                  <p class="text-sm text-white font-medium">AES-256 Encryption</p>
+                  <p class="text-xs text-slate-400 mt-0.5">Dual encryption for transit & rest, full tenant-level
+                    isolation</p>
+                </div>
+              </div>
+              <div class="glass-light rounded-xl p-4 flex items-start gap-3">
+                <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center"
+                  style="background:rgba(26,86,214,0.22);">
+                  <i data-lucide="users-2" class="w-4 h-4 text-blue-400"></i>
+                </div>
+                <div>
+                  <p class="text-sm text-white font-medium">Role-Based Access Control</p>
+                  <p class="text-xs text-slate-400 mt-0.5">Granular permission configuration for different user roles
+                  </p>
+                </div>
+              </div>
+              <div class="glass-light rounded-xl p-4 flex items-start gap-3">
+                <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center"
+                  style="background:rgba(26,86,214,0.22);">
+                  <i data-lucide="file-search" class="w-4 h-4 text-blue-400"></i>
+                </div>
+                <div>
+                  <p class="text-sm text-white font-medium">Full Operation Audit Logs</p>
+                  <p class="text-xs text-slate-400 mt-0.5">Complete audit trail for every system action</p>
+                </div>
+              </div>
+              <div class="glass-light rounded-xl p-4 flex items-start gap-3">
+                <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center"
+                  style="background:rgba(26,86,214,0.22);">
+                  <i data-lucide="download" class="w-4 h-4 text-blue-400"></i>
+                </div>
+                <div>
+                  <p class="text-sm text-white font-medium">Self-Owned & Exportable Data</p>
+                  <p class="text-xs text-slate-400 mt-0.5">Export full dataset anytime, no vendor lock-in</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!--SECTION 9 · PRICING-->
+  <section id="pricing" class="relative py-28 md:py-40 section-divider overflow-hidden">
+    <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-12">
+      <div class="text-center mb-16 reveal">
+        <span class="tag-badge">Simple Pricing</span>
+        <h2 class="text-3xl md:text-4xl font-outfit font-700 text-white mt-4 mb-2">
+          Transparent Costs.
+          <br />
+          <span class="text-gradient">Zero Migration Risk.</span>
+        </h2>
+        <p class="text-slate-400 max-w-2xl mx-auto">
+          Start alongside your existing systems. Realax runs in parallel — no rip-and-replace required.
+        </p>
+      </div>
+
+      <!-- Free Trial Banner -->
+      <div class="glass rounded-2xl p-5 border border-emerald-500/25 mb-10 reveal flex items-center gap-4"
+        style="background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(5,150,105,0.04));">
+        <div
+          class="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-500/20 border border-emerald-500/30 flex-shrink-0">
+          <i data-lucide="gift" class="w-5 h-5 text-emerald-400"></i>
+        </div>
+        <div class="flex-1">
+          <p class="text-white font-semibold">Free Trial: Fully free for portfolios under 200 units</p>
+          <p class="text-sm text-slate-400 mt-0.5">Runs alongside your existing stack, zero-switching cost, easy upgrade
+            path</p>
+        </div>
+        <button id="pricing-free-btn"
+          class="flex-shrink-0 btn-primary text-white text-sm px-5 py-2.5 rounded-xl font-medium">Get Started</button>
+      </div>
+
+      <!-- Pricing cards -->
+      <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <!-- Lite Edition $2.50 -->
+        <div class="rounded-2xl p-6 border card-hover reveal" style="border-color: rgba(59, 130, 246, 0.40);">
+          <div class="mb-6">
+            <p class="text-sm tracking-widest mb-1" style="color: rgba(59, 130, 246);">Lite</p>
+            <div class="flex items-end gap-2">
+              <span class="text-4xl font-outfit font-800 text-white">$2.50</span>
+              <span class="text-slate-400 mb-1">per unit / per month</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Maintenance-Focused Edition for property teams</p>
+          </div>
+
+          <div class="space-y-3 mb-8">
+            <div class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+              <span class="text-sm text-slate-300">AI-agent powered repair workflows</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+              <span class="text-sm text-slate-300">Intelligent vendor dispatching</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+              <span class="text-sm text-slate-300">Resident tenant communication AI</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+              <span class="text-sm text-slate-300">Full-cycle ticket management</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+              <span class="text-sm text-slate-300">Maintenance dashboard & records</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+              <span class="text-sm text-slate-300">Email & ticket support</span>
+            </div>
+          </div>
+          <button id="pricing-standard-btn" class="w-full btn-outline text-white py-3 rounded-xl font-semibold text-sm">
+            Request Free Trial
+          </button>
+        </div>
+        <!-- Pro $4.00 -->
+        <div class="rounded-2xl p-6 border card-hover reveal"
+          style="transition-delay:0.1s; border-color: rgba(167, 139, 250, 0.4);">
+          <div class="mb-6">
+            <p class="text-sm tracking-widest mb-1" style="color: rgba(167, 139, 250);">Pro</p>
+            <div class="flex items-end gap-2">
+              <span class="text-4xl font-outfit font-800 text-white">$4.00</span>
+              <span class="text-slate-400 mb-1">per unit / per month</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Full Real-Estate AI Platform for investors & operators</p>
+          </div>
+
+          <div class="space-y-3 mb-8">
+            <div class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+              <span class="text-sm text-slate-300">All Lite edition features</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+              <span class="text-sm text-slate-300">Automated financial statements & reporting</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+              <span class="text-sm text-slate-300">Vacancy, delinquency & cash-flow analytics</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+              <span class="text-sm text-slate-300">Market & compliance monitoring</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+              <span class="text-sm text-slate-300">Multi-role user access & dashboards</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+              <span class="text-sm text-slate-300">Priority email & ticket support</span>
+            </div>
+          </div>
+          <button id="pricing-standard-btn" class="w-full btn-outline text-white py-3 rounded-xl font-semibold text-sm">
+            Request Free Trial
+          </button>
+        </div>
+
+        <!-- Enterprise -->
+        <div class="pricing-popular rounded-2xl p-6 border card-hover reveal"
+          style="transition-delay:0.15s; border-color:rgba(16,185,129,0.4)!important;">
+          <div class="mb-6">
+            <p class="text-sm text-emerald-300 tracking-widest mb-1">Enterprise</p>
+            <div class="flex items-end gap-2">
+              <span class="text-4xl font-outfit font-800 text-white">Custom</span>
+              <span class="text-slate-400 mb-1">pricing by portfolio size</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">For institutional clients & asset management firms</p>
+          </div>
+
+          <div class="space-y-3 mb-8">
+            <div class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+              <span class="text-sm text-slate-200">All Pro edition features</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+              <span class="text-sm text-slate-200">Persistent always-on AI agents</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+              <span class="text-sm text-slate-200">Private / Local AI deployment</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+              <span class="text-sm text-slate-200">Full customization of workflows</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+              <span class="text-sm text-slate-200">Dedicated onboarding & support</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+              <span class="text-sm text-slate-200">API integrations & SLA guarantees</span>
+            </div>
+          </div>
+
+          <button id="nav-demo-btn"
+            class="w-full btn-primary text-white py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2">
+            <i data-lucide="calendar" class="w-4 h-4"></i>
+            Book Demo
+          </button>
+        </div>
+      </div>
+      <div class="mt-10 text-center text-emerald-400 text-sm">
+        <p>✦ No data migration cost &nbsp;·&nbsp; Run alongside Yardi or any existing system &nbsp;·&nbsp; Free trial
+          for portfolios under 200 units</p>
+      </div>
+    </div>
+  </section>
+  <!-- 10 · FAQ (新增2个高频问题) -->
+  <section id="faq" class="relative py-28 md:py-40 section-divider overflow-hidden">
+    <div class="max-w-4xl mx-auto px-6 md:px-8">
+      <div class="text-center mb-14 reveal">
+        <div
+          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700/50 text-xs text-slate-400 mb-5">
+          FAQ</div>
+        <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Your <span
+            class="text-gradient">Most-Asked</span> Questions</h2>
+      </div>
+
+      <div class="space-y-3" id="faq-list">
+
+        <div class="faq-item glass-light rounded-xl overflow-hidden reveal" data-faq="0">
+          <button class="faq-trigger w-full flex items-center justify-between px-6 py-5 text-left gap-4">
+            <span class="font-medium text-white text-sm md:text-base">Is Realax AI purely cloud-based, or do you also
+              provide on-ground support?</span>
+            <i data-lucide="plus" class="faq-icon w-5 h-5 text-blue-400 flex-shrink-0"></i>
+          </button>
+          <div class="faq-answer px-6">
+            <p class="text-sm text-slate-400 leading-relaxed pb-5">Realax AI follows a dual-track model: cloud-native AI
+              system plus local on-ground teams. The cloud platform delivers 24/7 intelligent monitoring and automated
+              workflows. Our local professional teams across major US cities handle on-site operations including tenant
+              sourcing, property inspections, maintenance coordination and rent collection to deliver a fully
+              closed-loop property management solution.</p>
+          </div>
+        </div>
+
+        <div class="faq-item glass-light rounded-xl overflow-hidden reveal" data-faq="1">
+          <button class="faq-trigger w-full flex items-center justify-between px-6 py-5 text-left gap-4">
+            <span class="font-medium text-white text-sm md:text-base">What sets Realax AI apart from legacy software
+              like Yardi and AppFolio?</span>
+            <i data-lucide="plus" class="faq-icon w-5 h-5 text-blue-400 flex-shrink-0"></i>
+          </button>
+          <div class="faq-answer px-6">
+            <p class="text-sm text-slate-400 leading-relaxed pb-5">Traditional property management software acts mainly
+              as a record-keeping tool that requires heavy manual work. Realax AI is built around six AI digital-worker
+              modules, autonomously handling tenant communications, maintenance dispatching, bookkeeping, compliance
+              alerts and more to cut labor overhead. It also adds built-in market intelligence and hands-on operational
+              support unavailable on legacy platforms.</p>
+          </div>
+        </div>
+
+        <div class="faq-item glass-light rounded-xl overflow-hidden reveal" data-faq="2">
+          <button class="faq-trigger w-full flex items-center justify-between px-6 py-5 text-left gap-4">
+            <span class="font-medium text-white text-sm md:text-base">I'm already using another platform. How high is
+              the switching cost to Realax AI?</span>
+            <i data-lucide="plus" class="faq-icon w-5 h-5 text-blue-400 flex-shrink-0"></i>
+          </button>
+          <div class="faq-answer px-6">
+            <p class="text-sm text-slate-400 leading-relaxed pb-5">Switching costs are minimal. Realax AI supports data
+              import and integration with mainstream property management systems, so you avoid manual historical-data
+              entry. During your free trial you may run it in parallel with your existing stack. You can fully validate
+              performance before committing to a full migration.</p>
+          </div>
+        </div>
+
+        <div class="faq-item glass-light rounded-xl overflow-hidden reveal" data-faq="3">
+          <button class="faq-trigger w-full flex items-center justify-between px-6 py-5 text-left gap-4">
+            <span class="font-medium text-white text-sm md:text-base">Are my investment and financial data kept
+              secure?</span>
+            <i data-lucide="plus" class="faq-icon w-5 h-5 text-blue-400 flex-shrink-0"></i>
+          </button>
+          <div class="faq-answer px-6">
+            <p class="text-sm text-slate-400 leading-relaxed pb-5">Data security is one of our core commitments. All
+              data is transmitted and stored with AES-256 encryption, with strict tenant-level data isolation.
+              Private-deployment options keep all data hosted on your own infrastructure. You retain full ownership of
+              your data and can export complete datasets at any time with no platform lock-in.</p>
+          </div>
+        </div>
+
+        <div class="faq-item glass-light rounded-xl overflow-hidden reveal" data-faq="4">
+          <button class="faq-trigger w-full flex items-center justify-between px-6 py-5 text-left gap-4">
+            <span class="font-medium text-white text-sm md:text-base">What use cases fit AI digital workers, and is
+              human oversight required?</span>
+            <i data-lucide="plus" class="faq-icon w-5 h-5 text-blue-400 flex-shrink-0"></i>
+          </button>
+          <div class="faq-answer px-6">
+            <p class="text-sm text-slate-400 leading-relaxed pb-5">AI digital workers handle high-volume repetitive
+              tasks including tenant inquiries, work-order follow-ups, financial data aggregation and risk-metric
+              monitoring 24/7. For high-stakes decisions requiring legal judgment or complex negotiations, AI
+              automatically escalates and alerts human team members to keep critical workflows supervised.</p>
+          </div>
+        </div>
+
+        <div class="faq-item glass-light rounded-xl overflow-hidden reveal" data-faq="5">
+          <button class="faq-trigger w-full flex items-center justify-between px-6 py-5 text-left gap-4">
+            <span class="font-medium text-white text-sm md:text-base">What limitations apply to the free trial?</span>
+            <i data-lucide="plus" class="faq-icon w-5 h-5 text-blue-400 flex-shrink-0"></i>
+          </button>
+          <div class="faq-answer px-6">
+            <p class="text-sm text-slate-400 leading-relaxed pb-5">The free trial is available for portfolios up to 200
+              units, with full-core-module access and no time limit. You can run it alongside your current systems, no
+              credit card is required, and there is no auto-billing. You may opt-out anytime at zero cost. Reach out to
+              our sales team for custom enterprise-grade trial options.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+  <!-- SECTION 11 · CTA CONVERSION -->
+  <section id="contact" class="relative py-28 md:py-40 section-divider overflow-hidden">
+    <div class="relative z-10 max-w-4xl mx-auto px-6 lg:px-12 text-center">
+      <div class="glass rounded-3xl p-10 md:p-12 border border-blue-500/25 reveal"
+        style="background:linear-gradient(135deg,rgba(13,31,60,0.8),rgba(10,22,40,0.9));">
+        <div class="inline-flex items-center gap-2 mb-6">
+          <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+          <span class="text-sm text-slate-400">Accepting new client inquiries</span>
+        </div>
+
+        <h2 class="text-3xl md:text-5xl font-outfit font-800 text-white mb-4 leading-tight">
+          Your properties,<br />
+          <span class="text-gradient">should not mean more work</span>
+        </h2>
+        <p class="text-slate-400 text-lg mb-8 max-w-2xl mx-auto">
+          Connect with Realax AI today. Let our six AI digital agents serve as your around-the-clock global asset
+          management team. Free trial available, zero-risk experience.
+        </p>
+        <div class="flex flex-wrap justify-center gap-3 md:gap-4 mb-10">
+          <div class="flex items-center gap-2 glass-light rounded-full px-4 py-2">
+            <i data-lucide="check" class="w-4 h-4 text-teal-400"></i>
+            <span class="text-sm text-slate-300">Free for up to 200 units</span>
+          </div>
+          <div class="flex items-center gap-2 glass-light rounded-full px-4 py-2">
+            <i data-lucide="check" class="w-4 h-4 text-teal-400"></i>
+            <span class="text-sm text-slate-300">No need to replace existing systems</span>
+          </div>
+          <div class="flex items-center gap-2 glass-light rounded-full px-4 py-2">
+            <i data-lucide="check" class="w-4 h-4 text-teal-400"></i>
+            <span class="text-sm text-slate-300">Zero migration cost</span>
+          </div>
+          <div class="flex items-center gap-2 glass-light rounded-full px-4 py-2">
+            <i data-lucide="check" class="w-4 h-4 text-teal-400"></i>
+            <span class="text-sm text-slate-300">Dedicated consultant on-boarding</span>
+          </div>
+        </div>
+
+        <!-- CTA buttons, aligned with downstream demo workflow -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+          <button id="cta-free-btn"
+            class="btn-primary text-white px-10 py-4 rounded-xl font-semibold text-base flex items-center justify-center gap-2">
+            <i data-lucide="calendar" class="w-5 h-5"></i>
+            Book a Free Demo
+          </button>
+          <button id="cta-contact-btn"
+            class="btn-outline text-white px-10 py-4 rounded-xl font-semibold text-base flex items-center justify-center gap-2">
+            <i data-lucide="mail" class="w-5 h-5"></i>
+            Send Partnership Inquiry
+          </button>
+        </div>
+
+        <p class="text-xs text-slate-500">
+          Email: <a href="mailto:support@realaxai.com" class="text-blue-400 hover:underline">support@realaxai.com</a> ·
+          Response within 24 hours
+        </p>
+      </div>
+    </div>
+  </section>
+  <!--FOOTER-->
+  <footer class="py-16 section-divider">
+    <div class="max-w-7xl mx-auto px-6 md:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+        <div class="md:col-span-1">
+          <div class="flex items-center gap-2.5 mb-4">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center"
+              style="background:linear-gradient(135deg,#1a56d6,#2563eb);">
+              <img src="images/logo.png" alt="REALAX AI" style="width:22px;height:22px;object-fit:contain;">
+            </div>
+            <span class="text-white font-semibold text-base">Realax <span
+                class="text-gradient font-bold">AI</span></span>
+          </div>
+          <p class="text-xs text-slate-500 leading-relaxed mb-4">
+            AI-powered real-estate asset operation platform, enabling investors to manage global assets with
+            institutional-grade capabilities.
+          </p>
+          <div class="space-y-2">
+            <a href="mailto:support@realaxai.com"
+              class="flex items-center gap-2 text-xs text-blue-400 hover:text-blue-300 transition-colors"
+              id="footer-email-link">
+              <i data-lucide="mail" class="w-3.5 h-3.5 text-slate-500"></i>
+              support@realaxai.com
+            </a>
+            <a href="tel:+12024360258"
+              class="flex items-center gap-2 text-xs text-blue-400 hover:text-blue-300 transition-colors">
+              <i data-lucide="phone" class="w-3.5 h-3.5 text-slate-500"></i>
+              +1 (202) 436-0258
+            </a>
+          </div>
+        </div>
+        <!-- Quick nav -->
+        <div>
+          <div class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Quick Links</div>
+          <ul class="space-y-2.5">
+            <li><a href="#hero" class="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+                id="footer-nav-home">Home</a></li>
+            <li><a href="#pain-points" class="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+                id="footer-nav-pain">Pain Points</a></li>
+            <li><a href="#ai-workers" class="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+                id="footer-nav-ai">AI Digital Agents</a></li>
+            <li><a href="#managed" class="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+                id="footer-nav-managed">Managed Solutions</a></li>
+            <li><a href="#global" class="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+                id="footer-nav-global">Global Footprint</a></li>
+            <li><a href="#pricing" class="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+                id="footer-nav-pricing">Pricing</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Capabilities</div>
+          <ul class="space-y-2.5">
+            <li><span class="text-xs text-slate-500">Tenant Service Agent</span></li>
+            <li><span class="text-xs text-slate-500">Maintenance Coordinator</span></li>
+            <li><span class="text-xs text-slate-500">Financial Reporting Agent</span></li>
+            <li><span class="text-xs text-slate-500">Portfolio Monitor Agent</span></li>
+            <li><span class="text-xs text-slate-500">Market Intelligence Agent</span></li>
+            <li><span class="text-xs text-slate-500">Compliance Watcher Agent</span></li>
+          </ul>
+        </div>
+
+        <!-- Newsletter -->
+        <div>
+          <div class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Newsletter</div>
+          <p class="text-xs text-slate-500 mb-4 leading-relaxed">Weekly updates on US real-estate markets, AI operation
+            insights & compliance alerts.</p>
+          <div class="flex gap-2">
+            <input id="newsletter-email" type="email" placeholder="Enter your email"
+              class="flex-1 bg-white/5 border border-slate-700/60 rounded-lg px-3 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors" />
+            <button id="newsletter-btn"
+              class="btn-primary px-4 py-2.5 rounded-lg text-xs font-semibold text-white flex-shrink-0">Subscribe</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom row -->
+      <div class="border-t border-slate-800/60 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="text-xs text-slate-600">
+          © 2026 Realax AI Inc. All rights reserved.
+        </div>
+        <div class="flex items-center gap-6 text-xs text-slate-600">
+          <a href="#" class="text-xs text-slate-600 hover:text-slate-300 transition-colors">Privacy Policy</a>
+          <a href="#" class="text-xs text-slate-600 hover:text-slate-300 transition-colors">Terms of Service</a>
+          <a href="#" class="text-xs text-slate-600 hover:text-slate-300 transition-colors">Security Policy</a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- MODAL (demo / consult)-->
+  <div id="modal-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-6"
+    style="display:none!important;background:rgba(4,13,30,0.85);backdrop-filter:blur(8px);">
+    <div id="modal-box" class="glass rounded-2xl w-full max-w-md flex flex-col"
+      style="box-shadow:0 32px 80px rgba(0,0,0,0.5);max-height:90vh;">
+      <!-- 头部：标题+关闭 -->
+      <div class="p-8 pb-4">
+        <div class="flex items-center justify-between mb-6">
+          <h3 id="modal-title" class="font-bold text-white text-lg">Book a Product Demo</h3>
+          <button id="modal-close-btn"
+            class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/10 transition-colors">
+            <i data-lucide="x" class="w-4 h-4 text-slate-400"></i>
+          </button>
+        </div>
+
+        <!-- 表单内容：这一块单独滚动 -->
+        <div class="space-y-4 overflow-y-auto" style="max-height:55vh;">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1.5">Full Name *</label>
+            <input type="text" id="input-fullname" placeholder="Your full name"
+              class="w-full bg-white/5 border border-slate-700/60 rounded-lg px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1.5">Company Name *</label>
+            <input type="text" id="input-company" placeholder="Your company or organization"
+              class="w-full bg-white/5 border border-slate-700/60 rounded-lg px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1.5">Work Email *</label>
+            <input type="email" id="input-email" placeholder="you@company.com"
+              class="w-full bg-white/5 border border-slate-700/60 rounded-lg px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1.5">Phone Number</label>
+            <input type="tel" id="input-phone" placeholder="+1 (XXX) XXX-XXXX"
+              class="w-full bg-white/5 border border-slate-700/60 rounded-lg px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1.5">City / Region</label>
+            <input type="text" id="input-city" placeholder="e.g. Miami, Dallas, Toronto"
+              class="w-full bg-white/5 border border-slate-700/60 rounded-lg px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1.5">Portfolio Size (Units Managed) *</label>
+            <select id="select-portfolio"
+              class="w-full bg-navy-900 border border-slate-700/60 rounded-lg px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-blue-500/50 transition-colors appearance-none"
+              style="background-color:#071630;">
+              <option value="">Please select</option>
+              <option>1 - 50 units</option>
+              <option>51 - 200 units</option>
+              <option>201 - 500 units</option>
+              <option>500+ units</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1.5">Additional Notes</label>
+            <textarea id="input-notes" rows="3" placeholder="Tell us about your pain points or requirements..."
+              class="w-full bg-white/5 border border-slate-700/60 rounded-lg px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors resize-none"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- 底部固定栏：不会滚动 -->
+      <div class="px-8 pb-8 pt-2 mt-auto">
+        <button id="modal-submit-btn"
+          class="btn-primary w-full py-3.5 rounded-xl text-sm font-semibold text-white">Submit Request</button>
+        <p id="modal-hint-text" class="text-xs text-slate-600 text-center mt-3">We will contact you within 1 business
+          day</p>
+      </div>
+    </div>
+  </div>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    {
+      const brandVideo = document.getElementById('brandVideo');
+      // Init Lucide icons
+      lucide.createIcons();
+      // ── Scroll reveal (IntersectionObserver) 全局滚动显隐
+      var revealEls = document.querySelectorAll('.reveal');
+      var revealObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+      revealEls.forEach(function (el) { revealObserver.observe(el); });
+
+      // ── Mobile menu 汉堡菜单
+      var mobileMenu = document.getElementById('mobile-menu');
+      var ham1 = document.getElementById('ham-1');
+      var ham2 = document.getElementById('ham-2');
+      var ham3 = document.getElementById('ham-3');
+      var menuOpen = false;
+      let currentEmailSubject = "New Book Demo Request — RealaxAI Website";
+      function toggleMenu(e) {
+        e.preventDefault();
+        menuOpen = !menuOpen;
+        if (menuOpen) {
+          mobileMenu.classList.add('open');
+          ham1.style.transform = 'rotate(45deg) translate(5px, 5px)';
+          ham2.style.opacity = '0';
+          ham3.style.transform = 'rotate(-45deg) translate(5px, -5px)';
+        } else {
+          mobileMenu.classList.remove('open');
+          ham1.style.transform = '';
+          ham2.style.opacity = '';
+          ham3.style.transform = '';
+        }
+      }
+
+      function closeMobileMenu() {
+        if (menuOpen) toggleMenu();
+      }
+
+      // ── FAQ accordion
+      function openFaq(item) {
+        var allItems = document.querySelectorAll('.faq-item');
+        allItems.forEach(function (el) {
+          if (el !== item) el.classList.remove('open');
+        });
+        item.classList.toggle('open');
+        lucide.createIcons();
+      }
+
+      // ── Modal 弹窗
+      var modalOverlay = document.getElementById('modal-overlay');
+      var modalTitle = document.getElementById('modal-title');
+      function openModal(title, emailSubject) {
+        if (!modalOverlay) return;
+        modalTitle.textContent = title || 'Book a Product Demo';
+        if (emailSubject) {
+          currentEmailSubject = emailSubject;
+        } else {
+          currentEmailSubject = "New Book Demo Request — RealaxAI Website";
+        }
+        modalOverlay.style.setProperty('display', 'flex', 'important');
+        document.body.style.overflow = 'hidden';
+      }
+
+
+      function closeModal() {
+        if (!modalOverlay) return;
+        modalOverlay.style.setProperty('display', 'none', 'important');
+        document.body.style.overflow = '';
+      }
+
+      // ── Newsletter 订阅
+      async function handleNewsletter() {
+        const emailInput = document.getElementById('newsletter-email');
+        if (!emailInput) return;
+        const val = emailInput.value.trim();
+        const btn = document.getElementById('newsletter-btn');
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        // 简单校验
+        if (!val || !emailRegex.test(val)) {
+          emailInput.style.borderColor = 'rgba(239,68,68,0.5)';
+          setTimeout(() => { emailInput.style.borderColor = ''; }, 2000);
+          return;
+        }
+        if (!btn) return;
+        btn.disabled = true;
+        btn.textContent = 'Sending…';
+        const formData = new FormData();
+        formData.append('email', val);
+        formData.append('_subject', 'Newsletter Subscription — RealaxAI Website');
+        formData.append('_captcha', 'false');
+
+        try {
+          const resp = await fetch('https://formsubmit.co/support@realaxai.com', {
+            method: 'POST',
+            body: formData
+          });
+          if (resp.ok) {
+            emailInput.value = '';
+            btn.textContent = 'Subscribed';
+            setTimeout(() => {
+              btn.textContent = 'Subscribe';
+              btn.disabled = false;
+            }, 3000);
+          } else {
+            throw new Error('fail');
+          }
+        } catch (err) {
+          btn.textContent = 'Subscribe';
+          btn.disabled = false;
+          // 失败提示，你可以加toast
+          alert('Network error, please try again.');
+        }
+      }
+      // ── Central click delegation 全局事件代理
+      var clickActions = {
+        'mobile-toggle': toggleMenu,
+        'mob-nav-home': closeMobileMenu,
+        'mob-nav-product': closeMobileMenu,
+        'mob-nav-pricing': closeMobileMenu,
+        'mob-nav-contact': closeMobileMenu,
+        'mob-demo-btn': function () { closeMobileMenu(); openModal('Book a Product Demo', 'New Book Demo Request — RealaxAI Website'); },
+        'nav-demo-btn': function () { openModal('Book a Product Demo', 'New Book Demo Request — RealaxAI Website'); },
+        'hero-consult-btn': function () { openModal('Sales Consultation', 'Sales Consultation Inquiry — RealaxAI Website'); },
+        'hero-demo-btn': function () { openModal('Book a Product Demo', 'New Book Demo Request — RealaxAI Website'); },
+        'managed-consult-btn': function () { openModal('Solution Inquiry', 'Managed Solution Inquiry — RealaxAI Website'); },
+        'pricing-free-btn': function () { openModal('Start Free Trial', 'Pricing-Page Free Trial Inquiry — RealaxAI Website'); },
+        'pricing-standard-btn': function () { openModal('Request Free Trial', 'Pricing-Page Free Trial Inquiry — RealaxAI Website'); },
+        'cta-free-btn': function () { openModal('Start Free Trial', 'Start Free Trial Inquiry — RealaxAI Website'); },
+        'cta-contact-btn': function () { openModal('Book a Product Demo', 'New Book Demo Request — RealaxAI Website'); },
+        'newsletter-btn': handleNewsletter,
+        'modal-close-btn': closeModal,
+        'modal-submit-btn': async function () {
+          const submitBtn = document.getElementById('modal-submit-btn');
+          const hintText = document.getElementById('modal-hint-text');
+
+          // 获取表单值
+          const fullName = document.getElementById('input-fullname').value.trim();
+          const company = document.getElementById('input-company').value.trim();
+          const workEmail = document.getElementById('input-email').value.trim();
+          const phone = document.getElementById('input-phone').value.trim();
+          const city = document.getElementById('input-city').value.trim();
+          const portfolioSize = document.getElementById('select-portfolio').value;
+          const notes = document.getElementById('input-notes').value.trim();
+
+          // ----------前端校验----------
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!fullName || !company || !workEmail || !portfolioSize) {
+            hintText.textContent = 'Please fill all required * fields';
+            hintText.style.color = '#f87171';
+            setTimeout(() => {
+              hintText.textContent = 'We will contact you within 1 business day';
+              hintText.style.color = '';
+            }, 2500);
+            return;
+          }
+          if (!emailRegex.test(workEmail)) {
+            hintText.textContent = 'Please enter a valid work email';
+            hintText.style.color = '#f87171';
+            setTimeout(() => {
+              hintText.textContent = 'We will contact you within 1 business day';
+              hintText.style.color = '';
+            }, 2500);
+            return;
+          }
+
+          // 防重复提交
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Sending...';
+          const formData = new FormData();
+          formData.append('name', fullName);
+          formData.append('company', company);
+          formData.append('email', workEmail);
+          formData.append('phone', phone);
+          formData.append('city', city);
+          formData.append('portfolioSize', portfolioSize);
+          formData.append('notes', notes);
+          formData.append('_subject', currentEmailSubject);
+          formData.append('_captcha', 'false');
+
+          try {
+            const resp = await fetch('https://formsubmit.co/support@realaxai.com', {
+              method: 'POST',
+              body: formData
+            });
+
+            if (resp.ok) {
+              submitBtn.textContent = "Request submitted!";
+              hintText.textContent = 'Thank you! We will reach out shortly.';
+              hintText.style.color = '#34d399';
+              setTimeout(() => {
+                closeModal();
+                document.getElementById('input-fullname').value = '';
+                document.getElementById('input-company').value = '';
+                document.getElementById('input-email').value = '';
+                document.getElementById('input-phone').value = '';
+                document.getElementById('input-city').value = '';
+                document.getElementById('select-portfolio').value = '';
+                document.getElementById('input-notes').value = '';
+                submitBtn.textContent = 'Submit Request';
+                submitBtn.disabled = false;
+                hintText.textContent = 'We will contact you within 1 business day';
+                hintText.style.color = '';
+              }, 2200);
+            } else {
+              throw new Error('submit fail');
+            }
+          } catch (err) {
+            submitBtn.textContent = 'Submit Request';
+            submitBtn.disabled = false;
+            hintText.textContent = 'Network error, please try again later.';
+            hintText.style.color = '#f87171';
+            setTimeout(() => {
+              hintText.textContent = 'We will contact you within 1 business day';
+              hintText.style.color = '';
+            }, 3000);
+          }
+        },
+      };
+
+      document.addEventListener('click', function (e) {
+        // FAQ
+        var faqTrigger = e.target.closest('.faq-trigger');
+        if (faqTrigger) {
+          var faqItem = faqTrigger.closest('.faq-item');
+          if (faqItem) openFaq(faqItem);
+          return;
+        }
+        // Modal overlay close
+        if (e.target === modalOverlay) {
+          closeModal();
+          return;
+        }
+        // Central id map
+        var el = e.target.closest('[id]');
+        if (!el) return;
+        if (el.id.startsWith('ham-')) {
+          el = el.closest('#mobile-toggle');
+        }
+        if (!el) return;
+        var fn = clickActions[el.id];
+        if (fn) fn(e, el);
+      });
+
+      // ── Progress bars animate on scroll
+      var progressBars = document.querySelectorAll('.progress-bar');
+      var barObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            var bar = entry.target;
+            var targetWidth = bar.dataset.target;
+            bar.style.width = '0%';
+            requestAnimationFrame(function () {
+              requestAnimationFrame(function () {
+                bar.style.width = targetWidth;
+              });
+            });
+            barObserver.unobserve(bar);
+          }
+        });
+      }, { threshold: 0.3 });
+      progressBars.forEach(function (bar) {
+        var w = bar.style.width;
+        bar.dataset.target = w;
+        bar.style.width = '0%';
+        barObserver.observe(bar);
+      });
+
+      lucide.createIcons();
+    }
+  </script>
+
+</body>
+
+</html>
