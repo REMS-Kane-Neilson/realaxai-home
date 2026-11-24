@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Realax Bridge Privacy Policy | Realax AI</title>
+  <meta name="description" content="Privacy policy for the Realax Bridge browser extension.">
+  <link href="images/favicon.png" rel="shortcut icon" type="image/x-icon" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Archivo', 'Inter Tight', sans-serif; }
+    body { background-color: #0F1118; color: #fff; padding: 64px 20px; }
+    main { max-width: 760px; margin: 0 auto; padding: 48px 40px; border: 1px solid #2A2D3A; border-radius: 20px; background: #12151E; }
+    h1 { font-size: 34px; font-weight: 600; margin-bottom: 8px; }
+    .meta { color: #6B6F80; font-size: 14px; margin-bottom: 36px; }
+    h2 { font-size: 20px; font-weight: 600; margin: 32px 0 12px; }
+    p, li { font-size: 16px; color: #A1A4B2; line-height: 1.75; }
+    ul { padding-left: 22px; }
+    li { margin-bottom: 6px; }
+    a { color: #fff; }
+    .back { display: inline-block; margin-top: 40px; color: #A1A4B2; text-decoration: none; font-size: 15px; }
+    .back:hover { color: #fff; }
+    @media (max-width: 600px) { main { padding: 32px 22px; } h1 { font-size: 28px; } body { padding: 32px 16px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Realax Bridge Privacy Policy</h1>
+    <p class="meta">Effective 9 November 2026</p>
+
+    <p>Realax Bridge is a browser extension published by Realax AI. It copies maintenance requests and unit lists from a property management system you are already logged into (such as Yardi Breeze) into your Realax AI Lite account. It runs only in your browser, only on pages you are already logged into, and only while you start it.</p>
+
+    <h2>What it collects</h2>
+    <ul>
+      <li><strong>Unit imports</strong> read unit numbers, status, bedrooms, baths, size and market rent straight from the page. No screenshots and no tenant names are taken.</li>
+      <li><strong>Maintenance request imports</strong> take screenshots of the page during a run and read the request fields from them. These fields may include tenant names, phone numbers and email addresses as they appear in the request.</li>
+      <li><strong>Your Realax AI Lite session token</strong>, read from your open Realax AI Lite tab, so the extension can call that server on your behalf.</li>
+      <li><strong>Your licence key</strong>, which you enter in the extension's settings.</li>
+    </ul>
+
+    <h2>Where it goes</h2>
+    <ul>
+      <li>Screenshots and the fields read from them are sent over HTTPS to your Realax AI Lite server (property.realaxai.com). That server passes screenshots to the Realax-hosted vision model that reads them, and stores the imported requests in your account.</li>
+      <li>Screenshots are also kept in your browser for 30 days as an audit trail of each run, then deleted automatically.</li>
+      <li>Nothing is sent to any third party, sold, or used for advertising.</li>
+    </ul>
+
+    <h2>What it never does</h2>
+    <ul>
+      <li>Log in on your behalf or see, store or send your password for the source system.</li>
+      <li>Change, create or delete any data in the source system. It only reads.</li>
+      <li>Read pages on its own, or on any site other than the source system and Realax AI Lite. The only background task is a daily clean-up of screenshots older than 30 days.</li>
+    </ul>
+
+    <h2>Your choices</h2>
+    <p>You decide when a run starts and can stop it at any time. Removing the extension from Chrome deletes everything it kept in your browser. To have imported requests removed from your Realax AI Lite account, delete them there or contact us.</p>
+
+    <h2>Changes</h2>
+    <p>If this policy changes, the new version will be posted on this page with a new effective date.</p>
+
+    <h2>Contact</h2>
+    <p><a href="mailto:support@realaxai.com">support@realaxai.com</a></p>
+
+    <a class="back" href="index.html">&larr; Back to realaxai.com</a>
+  </main>
+</body>
+</html>
